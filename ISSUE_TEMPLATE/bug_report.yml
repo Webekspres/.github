@@ -1,0 +1,116 @@
+name: Bug Report
+description: Laporkan bug atau masalah pada proyek Webekspres
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Terima kasih telah melaporkan bug. Isi formulir ini sejelas mungkin agar kami dapat membantu dengan cepat.
+
+  - type: dropdown
+    id: project
+    attributes:
+      label: Proyek / Repositori
+      description: Proyek mana yang terdampak?
+      options:
+        - Plugin WordPress
+        - Aplikasi Web
+        - Integrasi / API
+        - Lainnya (sebutkan di deskripsi)
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Deskripsi Bug
+      description: Jelaskan bug secara singkat dan jelas
+      placeholder: "Saat user melakukan X, terjadi Y..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Langkah Reproduksi
+      description: Langkah-langkah untuk memicu bug
+      placeholder: |
+        1. Buka halaman '...'
+        2. Klik tombol '...'
+        3. Scroll ke '...'
+        4. Lihat error
+      value: |
+        1. 
+        2. 
+        3. 
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Perilaku yang Diharapkan
+      description: Apa yang seharusnya terjadi?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Perilaku Aktual
+      description: Apa yang benar-benar terjadi?
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshot / Log
+      description: Tambahkan screenshot atau log error jika ada
+      placeholder: Paste screenshot atau log di sini, atau drag & drop file gambar
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Tingkat Keparahan
+      options:
+        - Kritis — production down / data loss
+        - Tinggi — fitur utama tidak berfungsi
+        - Sedang — fitur tidak berfungsi dengan workaround
+        - Rendah — masalah kosmetik / minor
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Versi Plugin / Aplikasi
+      description: Versi yang digunakan saat bug terjadi
+      placeholder: "v1.2.3"
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Informasi lingkungan
+      value: |
+        - OS: [e.g. Windows 11, Ubuntu 22.04]
+        - Browser: [e.g. Chrome 120, Firefox 121]
+        - PHP Version: [e.g. 8.1]
+        - WordPress Version: [e.g. 6.4] (jika relevan)
+        - WooCommerce Version: [e.g. 8.5] (jika relevan)
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: Saya sudah mencari issue serupa dan tidak menemukan duplikat
+          required: true
+        - label: Saya sudah mencoba versi terbaru
+          required: false

@@ -1,0 +1,75 @@
+name: Feature Request
+description: Usulkan fitur baru atau peningkatan
+title: "[Feature]: "
+labels: ["enhancement", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Terima kasih atas saran Anda! Jelaskan fitur yang diusulkan sejelas mungkin.
+
+  - type: dropdown
+    id: project
+    attributes:
+      label: Proyek / Repositori
+      description: Proyek mana yang terkait?
+      options:
+        - Plugin WordPress
+        - Aplikasi Web
+        - Integrasi / API
+        - Lainnya (sebutkan di deskripsi)
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Masalah yang Ingin Diselesaikan
+      description: Jelaskan masalah atau kebutuhan yang Anda alami
+      placeholder: "Saya selalu frustrasi ketika..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Solusi yang Diusulkan
+      description: Jelaskan solusi atau fitur yang Anda inginkan
+      placeholder: "Saya ingin ada fitur yang..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatif yang Dipertimbangkan
+      description: Solusi atau workaround lain yang sudah Anda coba
+      placeholder: "Saya sudah mencoba..."
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Prioritas (menurut Anda)
+      options:
+        - Tinggi — sangat dibutuhkan
+        - Sedang — akan sangat membantu
+        - Rendah — nice to have
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Konteks Tambahan
+      description: Screenshot, mockup, referensi, atau informasi lain
+      placeholder: Tambahkan konteks apapun di sini
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: Saya sudah mencari issue serupa dan tidak menemukan duplikat
+          required: true
+        - label: Saya bersedia membantu testing jika fitur ini diimplementasikan
+          required: false
