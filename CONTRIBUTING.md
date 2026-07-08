@@ -11,7 +11,6 @@ Sebelum berkontribusi, pastikan Anda:
 - [ ] Memiliki akses ke repositori terkait di organisasi [Webekspres](https://github.com/Webekspres)
 - [ ] Membaca [Kode Etik](CODE_OF_CONDUCT.md) kami
 - [ ] Memahami stack teknologi proyek yang Anda kerjakan
-- [ ] Mengetahui [panduan deployment](DEPLOYMENT_GUIDE.md) jika mendeploy ke production
 
 ---
 
@@ -135,11 +134,12 @@ Gunakan [template feature request](ISSUE_TEMPLATE/feature_request.yml). Jelaskan
 
 ## Deployment
 
-Sebelum mendeploy ke production, ikuti [Panduan Deployment](DEPLOYMENT_GUIDE.md) organisasi:
+Panduan deployment lengkap bersifat **internal** dan hanya tersedia untuk anggota organisasi di repositori privat `.github-private`.
 
-1. Daftarkan subdomain di Plesk terlebih dahulu
-2. Pilih metode deployment sesuai stack project (Vercel, cPanel, VPS Docker, atau Plesk)
-3. Jangan commit file `.env` atau kredensial ke Git — lihat [Kebijakan Keamanan](SECURITY.md)
+Prinsip umum yang wajib diikuti kontributor:
+
+1. Jangan commit file `.env` atau kredensial ke Git — lihat [Kebijakan Keamanan](SECURITY.md)
+2. Koordinasikan proses deploy dengan tim engineering sebelum rilis ke production
 
 ---
 

@@ -11,7 +11,6 @@ Butuh bantuan terkait proyek Webekspres? Berikut cara mendapatkan dukungan.
 | **Email** | Pertanyaan umum, dukungan klien | [data.webekspres@gmail.com](mailto:data.webekspres@gmail.com) |
 | **Website** | Informasi layanan & portfolio | [webekspres.co.id](https://webekspres.co.id) |
 | **GitHub Issues** | Bug report & feature request | Buka issue di repositori terkait |
-| **Deployment** | Panduan deploy production | Lihat [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) |
 | **Keamanan** | Laporan kerentanan | Lihat [SECURITY.md](SECURITY.md) |
 
 ---
@@ -21,7 +20,7 @@ Butuh bantuan terkait proyek Webekspres? Berikut cara mendapatkan dukungan.
 Cek hal berikut terlebih dahulu:
 
 1. **Cari issue yang sudah ada** — mungkin masalah Anda sudah dilaporkan
-2. **Baca dokumentasi** — periksa README repositori terkait atau [panduan deployment](DEPLOYMENT_GUIDE.md)
+2. **Baca dokumentasi** — periksa README repositori terkait
 3. **Perbarui ke versi terbaru** — bug mungkin sudah diperbaiki di release baru
 
 ---
@@ -42,7 +41,7 @@ Untuk pertanyaan yang tidak cocok sebagai issue (misalnya konsultasi proyek baru
 
 ### Masalah Deployment
 
-Untuk error saat deploy (DNS, SSL, Docker, Plesk, cPanel), ikuti [Panduan Deployment](DEPLOYMENT_GUIDE.md) dan bagian troubleshooting di dalamnya.
+Panduan deployment bersifat internal dan tersedia untuk anggota organisasi. Hubungi tim engineering untuk bantuan terkait deploy production (DNS, SSL, Docker, Plesk, cPanel).
 
 ---
 

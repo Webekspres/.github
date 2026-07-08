@@ -142,7 +142,6 @@ Standar dan kebijakan yang berlaku di seluruh repositori Webekspres:
 | Dokumen | Isi |
 |---|---|
 | [Panduan Kontribusi](../CONTRIBUTING.md) | Alur kerja Git, standar kode, dan proses PR |
-| [Panduan Deployment](../DEPLOYMENT_GUIDE.md) | Deploy ke Vercel, cPanel, VPS Docker, dan Plesk |
 | [Kode Etik](../CODE_OF_CONDUCT.md) | Prinsip kolaborasi dan perilaku yang diharapkan |
 | [Kebijakan Keamanan](../SECURITY.md) | Cara melaporkan kerentanan secara bertanggung jawab |
 | [Dukungan](../SUPPORT.md) | Kanal bantuan dan waktu respons |

@@ -21,7 +21,6 @@ Repositori **publik** ini adalah sumber konfigurasi tingkat organisasi untuk **P
 |---|---|
 | [`profile/README.md`](profile/README.md) | Profil organisasi yang tampil di [github.com/Webekspres](https://github.com/Webekspres) |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | Panduan kontribusi dan standar engineering |
-| [`DEPLOYMENT_GUIDE.md`](DEPLOYMENT_GUIDE.md) | Panduan deployment ke Vercel, cPanel, VPS, dan Plesk |
 | [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) | Kode etik kolaborasi |
 | [`SECURITY.md`](SECURITY.md) | Kebijakan pelaporan kerentanan keamanan |
 | [`SUPPORT.md`](SUPPORT.md) | Cara mendapatkan bantuan |

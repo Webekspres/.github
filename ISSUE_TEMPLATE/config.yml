@@ -7,8 +7,5 @@ contact_links:
     url: mailto:data.webekspres@gmail.com?subject=%5BSECURITY%5D%20Laporan%20Kerentanan
     about: Jangan buka issue publik untuk kerentanan keamanan — kirim email ke sini
   - name: Panduan Kontribusi
-    url: https://github.com/Webekspres/.github-private/blob/main/CONTRIBUTING.md
+    url: https://github.com/Webekspres/.github/blob/main/CONTRIBUTING.md
     about: Baca panduan kontribusi sebelum membuka issue atau PR
-  - name: Panduan Deployment
-    url: https://github.com/Webekspres/.github-private/blob/main/DEPLOYMENT_GUIDE.md
-    about: Panduan deploy ke Vercel, cPanel, VPS Docker, dan Plesk
