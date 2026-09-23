@@ -1,6 +1,6 @@
 <div align="center">
 
-<img width="300" height="61" alt="Webekspres Logo" src="https://github.com/user-attachments/assets/257cddcf-f3c4-472f-baca-92396ddc027d" />
+<img width="300" height="61" alt="image" src="https://github.com/user-attachments/assets/1535d984-9a59-4f2f-8edd-8a4a0c81219b" />
 
 ### PT Webekspres Teknologi Indonesia
 
