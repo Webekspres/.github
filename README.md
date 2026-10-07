@@ -1,6 +1,7 @@
 <div align="center">
 
-<img width="300" height="61" alt="Webekspres Logo" src="https://github.com/user-attachments/assets/257cddcf-f3c4-472f-baca-92396ddc027d" />
+<img width="4010" height="1127" alt="Frame 427320582" src="https://github.com/user-attachments/assets/8a44720a-a8b4-4a13-9461-52ba5112c838" />
+
 
 # Repositori `.github` Organisasi Webekspres
 
