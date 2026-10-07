@@ -1,6 +1,6 @@
 <div align="center">
 
-<img width="300" height="61" alt="image" src="https://github.com/user-attachments/assets/1535d984-9a59-4f2f-8edd-8a4a0c81219b" />
+<img width="4010" height="1127" alt="Frame 427320582" src="https://github.com/user-attachments/assets/09c410d1-370e-4c3c-a137-d687969c02a6" />
 
 ### PT Webekspres Teknologi Indonesia
 
