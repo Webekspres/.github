@@ -16,26 +16,28 @@ Sebelum berkontribusi, pastikan Anda:
 
 ## Alur Kerja Git
 
-Kami menggunakan **Git Flow** yang disederhanakan:
+Branch jangka panjang hanya **tiga**: `dev`, `staging`, dan `main`. Semua branch lain bersifat sementara dan dihapus setelah merge.
 
 ```
-main          → kode production-ready
-develop       → integrasi fitur (jika ada)
-feature/*     → pengembangan fitur baru
-fix/*         → perbaikan bug
-hotfix/*      → perbaikan darurat di production
+dev           → integrasi harian (CI cepat: lint + unit test)
+staging       → pra-rilis / UAT (CI penuh + deploy staging)
+main          → production (build image + deploy production)
+feat/*, fix/* → sementara, dibuat dari dev, dihapus setelah merge
+hotfix/*      → sementara, dibuat dari main, di-merge ke main lalu ke dev
 ```
+
+Promosi rilis: `dev` → `staging` → `main`. Detail trigger CI dan penggunaan runner ada di [docs/CI-RUNNER.md](docs/CI-RUNNER.md).
 
 ### Langkah Kontribusi
 
 1. **Fork / Clone** repositori target
-2. **Buat branch** dari `main` (atau `develop` jika ada):
+2. **Buat branch** dari `dev` (hotfix production dari `main`):
    ```bash
-   git checkout -b feature/nama-fitur
+   git checkout -b feat/nama-fitur
    ```
 3. **Commit** dengan pesan yang jelas (lihat [Conventional Commits](#conventional-commits))
 4. **Push** branch Anda
-5. **Buat Pull Request** menggunakan template yang tersedia
+5. **Buat Pull Request** ke `dev` menggunakan template yang tersedia (hotfix: ke `main`)
 6. **Tunggu review** dari maintainer
 
 ---
