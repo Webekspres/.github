@@ -39,15 +39,36 @@ Hindari `branches: ['**']` dan `branches-ignore`, karena keduanya memakai runner
 
 ## Runner
 
-Organisasi memakai runner self-hosted di 3 PC kantor (grup `Default`, hanya repo **privat**).
+Dua jenis runner, semua di jaringan kantor (grup `Default`, hanya repo **privat**):
 
-| Runner | Mesin | Label | Peran |
-|---|---|---|---|
-| `forge`, `forge-2`, `forge-3` | pc-padli (16 GB) | `self-hosted, heavy, docker` | job berat: test, build, deploy |
-| `atlas`, `atlas-2`, `atlas-3` | kris-lan (16 GB, Fedora + SELinux) | `self-hosted, heavy, docker` | job berat |
-| `spark` | laptop 4 GB | `self-hosted, light, docker` | hanya job ringan (lint, cek terjemahan) |
+### 1. ARC: runner sekali pakai di Kubernetes (untuk job berat)
 
-Repo **publik** dilarang memakai runner self-hosted (keamanan: PR dari fork bisa menjalankan kode di PC kantor).
+Cluster k3s di **kris-lan** (server) + **pc-padli** (agent). GitHub mengirim job, ARC membuat
+**pod baru khusus job itu** di PC yang sedang longgar, lalu **menghapusnya** setelah selesai.
+Tidak ada sisa file atau tools yang menumpuk di PC.
+
+| `runs-on` | Untuk | Kapasitas |
+|---|---|---|
+| `arc-ci` | test, lint berat, build aplikasi, E2E, APK (wajib `container:`) | 0–6 job paralel |
+| `arc-docker` | job yang menjalankan `docker build` (Docker terisolasi per job) | 0–3 job paralel |
+
+Yang diatur otomatis oleh template pod ARC (tidak perlu ditulis di workflow):
+- nama service `mysql`, `postgres`, `redis`, `mariadb` mengarah ke service job (sama seperti di Docker)
+- batas memori 8 GB per job, supaya satu job tidak membuat PC macet
+- cache dependensi per PC di `/ci-cache` (composer, npm, bun, gradle, uv, go, playwright)
+
+### 2. Runner biasa (untuk job ringan dan deploy)
+
+| Runner | Mesin | Label |
+|---|---|---|
+| `spark` | laptop 4 GB | `self-hosted, light, docker` |
+| `forge`, `forge-2`, `forge-3` | pc-padli | `self-hosted, heavy, docker` |
+| `atlas`, `atlas-2`, `atlas-3` | kris-lan | `self-hosted, heavy, docker` |
+
+Runner forge/atlas akan dipensiunkan setelah semua job berat dan deploy pindah ke ARC.
+Spark tetap untuk job ringan (lint, cek terjemahan) dengan `runs-on: [self-hosted, docker]`.
+
+Repo **publik** dilarang memakai runner kantor (keamanan: PR dari fork bisa menjalankan kode di PC kantor).
 Repo publik memakai `ubuntu-latest` (gratis, tanpa batas).
 
 ### Label = kemampuan runner, bukan versi tools
@@ -57,9 +78,10 @@ melainkan oleh image kontainer di workflow:
 
 | Kebutuhan job | `runs-on` |
 |---|---|
-| Test/lint biasa (boleh di spark) | `[self-hosted, docker]` |
-| Test berat, build, E2E | `[self-hosted, heavy, docker]` |
-| Build image Docker / deploy | `[self-hosted, heavy, docker]` (memakai Docker milik runner) |
+| Lint / cek ringan (boleh di spark) | `[self-hosted, docker]` |
+| Test berat, build, E2E, APK | `arc-ci` |
+| Build image Docker | `arc-docker` |
+| Deploy ke VPS (sementara) | `[self-hosted, heavy, docker]` |
 
 Label lama `php`, `dbports`, dan `devserver` **jangan dipakai** di workflow baru; akan dicabut setelah semua branch `main` diperbarui.
 
@@ -79,10 +101,9 @@ Contoh lengkap:
 ```yaml
 jobs:
   test:
-    runs-on: [self-hosted, heavy, docker]
+    runs-on: arc-ci
     container:
       image: ghcr.io/webekspres/ci-php:8.4
-      options: --security-opt label=disable   # wajib: atlas memakai SELinux
     services:
       mysql:
         image: mysql:8.4
@@ -94,6 +115,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: composer install && php artisan test
+```
+
+Untuk job di runner biasa (`[self-hosted, docker]`) tambahkan di `container:`
+`options: --security-opt label=disable` (atlas memakai SELinux) dan langkah terakhir:
+
+```yaml
       - name: Kembalikan kepemilikan workspace ke user runner
         if: always()
         run: chown -R "$(stat -c %u:%g "$GITHUB_WORKSPACE/..")" "$GITHUB_WORKSPACE"
@@ -104,7 +131,7 @@ Aturan:
 - **Jangan** memasang tools ke PC runner (setup-php dengan sudo, apt install, symlink). Butuh tools baru: tambahkan ke ci-images.
 - Versi Bun/Node/uv yang dipatok repo boleh tetap lewat `setup-bun` / `setup-node` / `setup-uv` **di dalam** kontainer.
 - Service (MySQL/Postgres/Redis) diakses lewat **nama service**, tanpa `ports:`.
-- Langkah terakhir `chown` wajib: kontainer berjalan sebagai root, tanpa itu job berikutnya di runner yang sama gagal checkout.
+- Runner biasa: langkah `chown` wajib (kontainer berjalan sebagai root). Di ARC tidak perlu.
 - Stack baru: buat `images/<nama>/Dockerfile` di ci-images dan tambahkan ke matrix build-nya.
 
 ### Penggunaan bersama
@@ -123,3 +150,18 @@ Pantau runner dan antrean dari terminal dengan [pitwall](https://github.com/Webe
 2. Tentukan job per branch dengan `if: github.ref == 'refs/heads/...'` (mis. build dan deploy tidak jalan di `dev`).
 3. Test/lint: `container:` dari ci-images + `runs-on` sesuai tabel di atas.
 4. Uji lewat `workflow_dispatch` atau PR ke `dev` sebelum merge ke `staging`.
+
+## Mengelola cluster ARC
+
+Konfigurasi ada di `~/arc/` pada kris-lan (salinan: `webekspres-ci/arc/` di PC admin). Akses: `ssh kris-lan`, lalu `kubectl`.
+
+| Kebutuhan | Perintah |
+|---|---|
+| Lihat node | `kubectl get nodes` |
+| Lihat runner yang sedang bekerja | `kubectl get pods -n arc-runners` |
+| Ubah jumlah maksimum runner | ubah `maxRunners` di `values-arc-ci.yaml`, lalu `helm upgrade arc-ci -n arc-runners -f values-arc-ci.yaml oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set` |
+| Ubah template job (memori, cache, nama service) | ubah `job-pod-template.yaml`, lalu `kubectl -n arc-runners create configmap arc-job-pod-template --from-file=job.yaml=job-pod-template.yaml --dry-run=client -o yaml \| kubectl apply -f -` |
+| Uji kesehatan ARC | repo pitwall → Actions → **ARC smoke** → Run workflow |
+| Tambah PC ke cluster | jalankan `02-k3s-agent-pc-padli.sh` (ganti IP) di PC baru |
+
+Kunci GitHub App `webekspres-arc` disimpan sebagai secret `arc-github-app` di namespace `arc-runners`, bukan di repo mana pun.
