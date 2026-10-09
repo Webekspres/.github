@@ -1,0 +1,89 @@
+name: Tunggu database siap
+description: >-
+  Menunggu service database/cache (MySQL, MariaDB, Postgres, Redis) benar-benar menerima koneksi
+  sebelum tes dijalankan. Memakai klien bawaan image (mysqladmin, pg_isready, redis-cli);
+  bila klien tidak ada, cukup memeriksa port TCP.
+author: Webekspres
+
+inputs:
+  type:
+    description: "Jenis service: mysql | mariadb | postgres | redis"
+    required: true
+  host:
+    description: Nama host service. Default sama dengan type (mysql, mariadb, postgres, redis).
+    required: false
+    default: ""
+  port:
+    description: Port service. Default 3306 (mysql/mariadb), 5432 (postgres), 6379 (redis).
+    required: false
+    default: ""
+  user:
+    description: User untuk pengecekan. Default root (mysql/mariadb) atau postgres. Tidak dipakai untuk redis.
+    required: false
+    default: ""
+  password:
+    description: Password (opsional). Tidak pernah dicetak ke log.
+    required: false
+    default: ""
+  timeout:
+    description: Batas tunggu dalam detik.
+    required: false
+    default: "300"
+
+runs:
+  using: composite
+  steps:
+    - name: Tunggu ${{ inputs.type }} siap
+      shell: bash
+      env:
+        DB_TYPE: ${{ inputs.type }}
+        DB_HOST_IN: ${{ inputs.host }}
+        DB_PORT_IN: ${{ inputs.port }}
+        DB_USER_IN: ${{ inputs.user }}
+        DB_PASS_IN: ${{ inputs.password }}
+        DB_TIMEOUT: ${{ inputs.timeout }}
+      run: |
+        set -uo pipefail
+        type=$(printf '%s' "$DB_TYPE" | tr '[:upper:]' '[:lower:]')
+        case "$type" in
+          mysql|mariadb) port=${DB_PORT_IN:-3306}; user=${DB_USER_IN:-root} ;;
+          postgres|postgresql) type=postgres; port=${DB_PORT_IN:-5432}; user=${DB_USER_IN:-postgres} ;;
+          redis) port=${DB_PORT_IN:-6379}; user="" ;;
+          *) echo "::error title=tunggu-db::type '$DB_TYPE' tidak dikenal. Pilih: mysql, mariadb, postgres, redis."; exit 2 ;;
+        esac
+        host=${DB_HOST_IN:-$type}
+        limit=${DB_TIMEOUT:-300}
+
+        # Password lewat variabel lingkungan klien, bukan argumen (tidak terlihat di daftar proses/log).
+        export MYSQL_PWD="$DB_PASS_IN" PGPASSWORD="$DB_PASS_IN" REDISCLI_AUTH="$DB_PASS_IN"
+        [ -n "$DB_PASS_IN" ] || unset REDISCLI_AUTH
+
+        tcp() { timeout 3 bash -c "exec 3<>/dev/tcp/$host/$port" 2>/dev/null; }
+        method="port TCP"
+        case "$type" in
+          mysql|mariadb)
+            if command -v mysqladmin >/dev/null; then method=mysqladmin
+              check() { mysqladmin ping -h "$host" -P "$port" -u "$user" --connect-timeout=3 --silent >/dev/null 2>&1; }
+            elif command -v mariadb-admin >/dev/null; then method=mariadb-admin
+              check() { mariadb-admin ping -h "$host" -P "$port" -u "$user" --connect-timeout=3 --silent >/dev/null 2>&1; }
+            else check() { tcp; }; fi ;;
+          postgres)
+            if command -v pg_isready >/dev/null; then method=pg_isready
+              check() { pg_isready -h "$host" -p "$port" -U "$user" -t 3 >/dev/null 2>&1; }
+            else check() { tcp; }; fi ;;
+          redis)
+            if command -v redis-cli >/dev/null; then method=redis-cli
+              check() { [ "$(redis-cli -h "$host" -p "$port" ping 2>/dev/null)" = PONG ]; }
+            else check() { tcp; }; fi ;;
+        esac
+
+        echo "Menunggu $type di $host:$port (cek: $method, batas ${limit} detik)"
+        start=$SECONDS
+        until check; do
+          if (( SECONDS - start >= limit )); then
+            echo "::error title=tunggu-db::$type di $host:$port belum siap setelah ${limit} detik (cek: $method). Periksa nama service/host dan port, env service (mis. MYSQL_ROOT_PASSWORD), log container service, dan beban node di pitwall."
+            exit 1
+          fi
+          sleep 2
+        done
+        echo "$type siap setelah $(( SECONDS - start )) detik."

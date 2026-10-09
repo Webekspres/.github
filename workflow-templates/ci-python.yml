@@ -1,0 +1,47 @@
+# CI Python (repo privat) — runner ARC arc-ci, kontainer ci-python, uv.
+name: CI
+
+on:
+  push:
+    branches: [dev, staging, main]
+    paths-ignore: ['**.md', 'docs/**']
+  pull_request:
+    branches: [dev, staging, main]
+    paths-ignore: ['**.md', 'docs/**']
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.ref == 'refs/heads/dev' || github.event_name == 'pull_request' }}
+
+jobs:
+  test:
+    runs-on: arc-ci
+    timeout-minutes: 30
+    container:
+      # SESUAIKAN: versi Python = .python-version / "requires-python" di pyproject.toml.
+      image: ghcr.io/webekspres/ci-python:3.12
+    # OPSIONAL: hapus blok services dan langkah tunggu-db bila tidak memakai Postgres.
+    services:
+      postgres:
+        image: postgres:16   # SESUAIKAN: samakan dengan versi produksi
+        env:
+          POSTGRES_USER: app
+          POSTGRES_PASSWORD: app
+          POSTGRES_DB: app_test
+    env:
+      DATABASE_URL: postgresql://app:app@postgres:5432/app_test
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: Webekspres/.github/actions/tunggu-db@main
+        with:
+          type: postgres
+          user: app
+
+      - name: uv sync
+        run: uv sync --frozen
+
+      - name: Test
+        # SESUAIKAN: perintah tes proyek (mis. uv run python manage.py test).
+        run: uv run pytest

@@ -1,0 +1,6 @@
+{
+  "name": "Webekspres Alur Branch (repo privat, ARC)",
+  "description": "Repo PRIVAT: menolak PR yang melanggar alur fitur -> dev -> staging -> main dan menghapus branch fitur setelah merge. Berjalan di runner ARC arc-ci. Untuk repo publik pakai \"Alur Branch (repo publik)\".",
+  "iconName": "octicon git-branch",
+  "categories": ["Automation"]
+}

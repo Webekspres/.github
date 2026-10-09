@@ -1,0 +1,7 @@
+{
+  "name": "Webekspres CI Laravel (repo privat, ARC)",
+  "description": "Repo PRIVAT: composer install, Pint, dan tes Laravel di runner ARC arc-ci dengan kontainer ci-php dan MySQL. Jangan dipakai di repo publik.",
+  "iconName": "octicon beaker",
+  "categories": ["PHP", "Laravel"],
+  "filePatterns": ["composer.json$", "artisan$"]
+}

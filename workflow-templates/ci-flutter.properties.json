@@ -1,0 +1,7 @@
+{
+  "name": "Webekspres CI Flutter (repo privat, ARC)",
+  "description": "Repo PRIVAT: flutter analyze, test, dan build APK debug di runner ARC arc-ci dengan kontainer ci-flutter. Jangan dipakai di repo publik.",
+  "iconName": "octicon device-mobile",
+  "categories": ["Dart", "Flutter"],
+  "filePatterns": ["pubspec.yaml$"]
+}

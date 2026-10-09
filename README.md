@@ -27,6 +27,30 @@ Repositori **publik** ini adalah sumber konfigurasi tingkat organisasi untuk **P
 | [`SUPPORT.md`](SUPPORT.md) | Cara mendapatkan bantuan |
 | [`ISSUE_TEMPLATE/`](ISSUE_TEMPLATE/) | Template issue default untuk repositori org |
 | [`PULL_REQUEST_TEMPLATE.md`](PULL_REQUEST_TEMPLATE.md) | Template pull request default |
+| [`workflow-templates/`](workflow-templates/) | Template GitHub Actions organisasi (tombol **Actions → New workflow** di setiap repo) |
+| [`actions/tunggu-db/`](actions/tunggu-db/) | Action bersama: tunggu MySQL/MariaDB/Postgres/Redis siap sebelum tes |
+
+### Workflow template
+
+| Template | Untuk |
+|---|---|
+| Webekspres CI Laravel / Node / Python / Flutter (repo privat) | tes di kontainer image [`ci-images`](https://github.com/Webekspres/ci-images) pada runner organisasi |
+| Webekspres Deploy Docker ke VPS (repo privat) | build & push image ke GHCR lalu deploy, hanya dari `staging` dan `main` |
+| Webekspres Alur Branch (repo privat / repo publik) | menjaga alur `fitur → dev → staging → main` |
+
+Template bertanda **repo privat** memakai runner organisasi dan hanya boleh dipakai di repo privat.
+Repo publik selalu memakai runner GitHub (`ubuntu-latest`).
+
+### Action `tunggu-db`
+
+```yaml
+- uses: Webekspres/.github/actions/tunggu-db@main
+  with:
+    type: mysql      # mysql | mariadb | postgres | redis
+    password: root
+```
+
+Detail input ada di [`actions/tunggu-db/README.md`](actions/tunggu-db/README.md).
 
 Dokumentasi internal (infrastruktur, CI/runner, deploy, handover) **tidak** disimpan di sini karena repo ini publik.
 Tempatnya di repo privat [`.github-private`](https://github.com/Webekspres/.github-private), yang juga berisi profil khusus anggota.

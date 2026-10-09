@@ -1,0 +1,7 @@
+{
+  "name": "Webekspres CI Node (repo privat, ARC)",
+  "description": "Repo PRIVAT: install bun/npm otomatis dari lockfile, lalu lint, typecheck, dan test di runner ARC arc-ci dengan kontainer ci-node. Jangan dipakai di repo publik.",
+  "iconName": "octicon beaker",
+  "categories": ["JavaScript", "TypeScript"],
+  "filePatterns": ["package.json$"]
+}

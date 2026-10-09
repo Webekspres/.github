@@ -1,0 +1,37 @@
+# CI Flutter (repo privat) — runner ARC arc-ci, kontainer ci-flutter (Flutter + Android SDK + JDK 17).
+name: CI
+
+on:
+  push:
+    branches: [dev, staging, main]
+    paths-ignore: ['**.md', 'docs/**']
+  pull_request:
+    branches: [dev, staging, main]
+    paths-ignore: ['**.md', 'docs/**']
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.ref == 'refs/heads/dev' || github.event_name == 'pull_request' }}
+
+jobs:
+  build:
+    runs-on: arc-ci
+    timeout-minutes: 60
+    container:
+      # SESUAIKAN: tag = versi Flutter proyek (pubspec.yaml "environment.flutter" / .fvmrc).
+      image: ghcr.io/webekspres/ci-flutter:3.44.6
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: flutter pub get
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Test
+        run: flutter test
+
+      - name: Build APK debug
+        run: flutter build apk --debug
