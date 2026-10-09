@@ -1,0 +1,7 @@
+{
+  "name": "Webekspres Deploy Docker ke VPS (repo privat, ARC)",
+  "description": "Repo PRIVAT: build & push image ke GHCR lalu deploy lewat SSH, hanya dari staging dan main, di runner ARC arc-docker. Secret dari environment staging/production. Jangan dipakai di repo publik.",
+  "iconName": "octicon rocket",
+  "categories": ["Deployment", "Dockerfile"],
+  "filePatterns": ["Dockerfile$", "docker-compose\\.ya?ml$", "compose\\.ya?ml$"]
+}

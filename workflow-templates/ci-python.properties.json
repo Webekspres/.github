@@ -1,0 +1,7 @@
+{
+  "name": "Webekspres CI Python (repo privat, ARC)",
+  "description": "Repo PRIVAT: uv sync dan test di runner ARC arc-ci dengan kontainer ci-python, Postgres opsional. Jangan dipakai di repo publik.",
+  "iconName": "octicon beaker",
+  "categories": ["Python"],
+  "filePatterns": ["pyproject.toml$", "uv.lock$"]
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Webekspres Alur Branch (repo publik, ubuntu-latest)",
+  "description": "Repo PUBLIK saja: alur fitur -> dev -> staging -> main di runner GitHub ubuntu-latest. Jangan dipakai di repo privat (pakai \"Alur Branch (repo privat, ARC)\").",
+  "iconName": "octicon git-branch",
+  "categories": ["Automation"]
+}
