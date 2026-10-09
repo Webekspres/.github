@@ -49,13 +49,25 @@ Tidak ada sisa file atau tools yang menumpuk di PC.
 
 | `runs-on` | Untuk | Kapasitas |
 |---|---|---|
-| `arc-ci` | test, lint berat, build aplikasi, E2E, APK (wajib `container:`) | 0–6 job paralel |
+| `arc-ci` | test, lint berat, build aplikasi, E2E, APK (wajib `container:`) | 0–4 job paralel |
 | `arc-docker` | job yang menjalankan `docker build` (Docker terisolasi per job) | 0–3 job paralel |
 
 Yang diatur otomatis oleh template pod ARC (tidak perlu ditulis di workflow):
 - nama service `mysql`, `postgres`, `redis`, `mariadb` mengarah ke service job (sama seperti di Docker)
 - batas memori 8 GB per job, supaya satu job tidak membuat PC macet
 - cache dependensi per PC di `/ci-cache` (composer, npm, bun, gradle, uv, go, playwright)
+
+**Perhatian:** di ARC, `--health-cmd` pada service **diabaikan**. Job yang memakai database wajib menunggu
+service siap sebelum tes, misalnya:
+
+```yaml
+      - name: Tunggu MySQL siap
+        run: |
+          for i in $(seq 1 60); do mysqladmin ping -h "$DB_HOST" -uroot -proot --silent && exit 0; sleep 2; done
+          echo "::error::MySQL tidak siap"; exit 1
+```
+
+Untuk Postgres: `until pg_isready -h postgres; do sleep 2; done` (atau perintah migrasi yang mencoba ulang).
 
 ### 2. Runner biasa (untuk job ringan dan deploy)
 
