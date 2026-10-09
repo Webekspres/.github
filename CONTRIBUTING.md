@@ -26,7 +26,7 @@ feat/*, fix/* → sementara, dibuat dari dev, dihapus setelah merge
 hotfix/*      → sementara, dibuat dari main, di-merge ke main lalu ke dev
 ```
 
-Promosi rilis: `dev` → `staging` → `main`. Detail trigger CI dan penggunaan runner ada di [docs/CI-RUNNER.md](docs/CI-RUNNER.md).
+Promosi rilis: `dev` → `staging` → `main`. Detail CI dan runner ada di dokumentasi internal [`.github-private`](https://github.com/Webekspres/.github-private) (khusus anggota organisasi).
 
 ### Langkah Kontribusi
 

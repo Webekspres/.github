@@ -28,6 +28,9 @@ Repositori **publik** ini adalah sumber konfigurasi tingkat organisasi untuk **P
 | [`ISSUE_TEMPLATE/`](ISSUE_TEMPLATE/) | Template issue default untuk repositori org |
 | [`PULL_REQUEST_TEMPLATE.md`](PULL_REQUEST_TEMPLATE.md) | Template pull request default |
 
+Dokumentasi internal (infrastruktur, CI/runner, deploy, handover) **tidak** disimpan di sini karena repo ini publik.
+Tempatnya di repo privat [`.github-private`](https://github.com/Webekspres/.github-private), yang juga berisi profil khusus anggota.
+
 ---
 
 ## Profil Organisasi
