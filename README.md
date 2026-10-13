@@ -86,7 +86,7 @@ dan harus sama dengan versi repo, dev, dan produksi.
 ### Action `tunggu-db`
 
 ```yaml
-- uses: Webekspres/.github/actions/tunggu-db@main
+- uses: Webekspres/.github/actions/tunggu-db@v1
   with:
     type: mysql      # mysql | mariadb | postgres | redis
     password: root

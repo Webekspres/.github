@@ -37,7 +37,7 @@ jobs:
         env: { MYSQL_ROOT_PASSWORD: root, MYSQL_DATABASE: app }
     steps:
       - uses: actions/checkout@v7
-      - uses: Webekspres/.github/actions/tunggu-db@main
+      - uses: Webekspres/.github/actions/tunggu-db@v1
         with:
           type: mysql
           password: root
@@ -47,7 +47,7 @@ jobs:
 Postgres:
 
 ```yaml
-      - uses: Webekspres/.github/actions/tunggu-db@main
+      - uses: Webekspres/.github/actions/tunggu-db@v1
         with:
           type: postgres
           user: app

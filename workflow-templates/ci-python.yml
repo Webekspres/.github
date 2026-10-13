@@ -34,7 +34,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: Webekspres/.github/actions/tunggu-db@main
+      - uses: Webekspres/.github/actions/tunggu-db@v1
         with:
           type: postgres
           user: app
