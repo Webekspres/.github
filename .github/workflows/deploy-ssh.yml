@@ -132,16 +132,19 @@ jobs:
           user=$(printf '%s' "$SSH_USER" | tr -d ' \r\n')
           [ -n "$host" ] && [ -n "$user" ] || { echo "::error::secret ${{ inputs.secret-prefix }}${{ inputs.host-secret }} / ${{ inputs.secret-prefix }}${{ inputs.user-secret }} kosong (environment ${{ inputs.environment }})"; exit 1; }
           install -m 700 -d ~/.ssh
-          if printf '%s' "$SSH_KEY" | grep -q -- '-----BEGIN'; then
-            printf '%s\n' "$SSH_KEY" | tr -d '\r' > ~/.ssh/deploy_key
-          else
-            printf '%s' "$SSH_KEY" | tr -d '\r\n ' | base64 -d > ~/.ssh/deploy_key
-          fi
+          # Tanpa `printf | grep -q`: dengan pipefail, grep -q yang berhenti lebih awal membuat printf kena
+          # SIGPIPE sehingga kunci PEM dianggap base64.
+          case "$SSH_KEY" in
+            *-----BEGIN*) printf '%s\n' "$SSH_KEY" | tr -d '\r' > ~/.ssh/deploy_key ;;
+            *) printf '%s' "$SSH_KEY" | tr -d '\r\n ' | base64 -d > ~/.ssh/deploy_key \
+                 || { echo "::error::secret ${{ inputs.secret-prefix }}${{ inputs.key-secret }} bukan kunci PEM/OpenSSH maupun base64"; exit 1; } ;;
+          esac
           chmod 600 ~/.ssh/deploy_key
           ssh-keygen -y -f ~/.ssh/deploy_key >/dev/null || { echo "::error::secret key bukan kunci privat SSH yang valid"; exit 1; }
-          ssh-keyscan -p "$port" -H "$host" > ~/.ssh/known_hosts 2>/dev/null
+          ssh-keyscan -T 15 -p "$port" -H "$host" > ~/.ssh/known_hosts 2>/dev/null || true
+          [ -s ~/.ssh/known_hosts ] || { echo "::error::tidak bisa membaca host key VPS (port $port); cek secret host/port dan firewall"; exit 1; }
           if [ -n "$FINGERPRINT" ]; then
-            ssh-keygen -lf ~/.ssh/known_hosts | grep -qF "$FINGERPRINT" \
+            ssh-keygen -lf ~/.ssh/known_hosts | grep -F "$FINGERPRINT" >/dev/null \
               || { echo "::error::host key VPS tidak cocok dengan fingerprint $FINGERPRINT"; exit 1; }
           fi
           { echo "SSH_HOST=$host"; echo "SSH_PORT=$port"; echo "SSH_USER=$user"; } >> "$GITHUB_ENV"
