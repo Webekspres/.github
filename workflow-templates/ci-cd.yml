@@ -1,0 +1,89 @@
+# CI/CD standar Webekspres (repo privat): test → build → deploy-staging / deploy-production.
+#
+#   PR ke dev/staging/main   test
+#   push dev                 test
+#   push staging             test → build (:staging, :sha-<commit>) → deploy-staging
+#   push main                test → build (:latest,  :sha-<commit>) → deploy-production
+#   Run workflow (manual)    sama seperti push pada branch yang dipilih (deploy ulang)
+#
+# Build dan deploy memakai reusable workflow di Webekspres/.github (@v1): runner arc-docker, cache layer
+# di GHCR, login GHCR di VPS, SSH dengan secret per environment. Job test ditulis di sini karena isinya
+# khas proyek (database, secret, perintah test). Baris bertanda SESUAIKAN wajib diperiksa.
+name: ci-cd
+
+on:
+  push:
+    branches: [dev, staging, main]
+    paths-ignore: ['**.md', 'docs/**']
+  pull_request:
+    branches: [dev, staging, main]
+    paths-ignore: ['**.md', 'docs/**']
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  # dev & PR: batalkan run lama. staging & main: jangan pernah memotong deploy.
+  cancel-in-progress: ${{ github.ref == 'refs/heads/dev' || github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  test:
+    name: Test
+    runs-on: arc-ci
+    container:
+      # SESUAIKAN: image & versi = runtime proyek (ci-php:8.x, ci-node:20/22, ci-python:3.12, ci-flutter:3.44.6)
+      image: ghcr.io/webekspres/ci-node:22
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      # SESUAIKAN: langkah test proyek (lihat template ci-laravel / ci-node / ci-python untuk contoh lengkap,
+      # termasuk service database + Webekspres/.github/actions/tunggu-db).
+      - run: npm ci
+      - run: npm run lint --if-present
+      - run: npm test --if-present
+
+  build:
+    name: Build
+    needs: test
+    if: github.event_name != 'pull_request' && (github.ref_name == 'staging' || github.ref_name == 'main')
+    uses: Webekspres/.github/.github/workflows/build-image.yml@v1
+    with:
+      environment: ${{ github.ref_name == 'main' && 'production' || 'staging' }}
+      # SESUAIKAN (opsional): file, target, build-args. Build-arg rahasia lewat `secrets: build-args`.
+      # build-args: |
+      #   NEXT_PUBLIC_APP_URL=${{ github.ref_name == 'main' && 'https://app.example.com' || 'https://staging.example.com' }}
+
+  deploy-staging:
+    name: Deploy staging
+    needs: build
+    if: github.ref_name == 'staging'
+    uses: Webekspres/.github/.github/workflows/deploy-ssh.yml@v1
+    with:
+      environment: staging
+      image-tag: ${{ needs.build.outputs.tag }}
+      secret-prefix: STAGING_          # STAGING_VPS_HOST / _PORT / _USER / _SSH_KEY
+      # SESUAIKAN: perintah di VPS. $IMAGE_TAG = sha-<commit> hasil build ini.
+      script: |
+        cd /opt/app-staging
+        docker compose pull app
+        docker compose up -d app
+    secrets: inherit
+
+  deploy-production:
+    name: Deploy production
+    needs: build
+    if: github.ref_name == 'main'
+    uses: Webekspres/.github/.github/workflows/deploy-ssh.yml@v1
+    with:
+      environment: production
+      image-tag: ${{ needs.build.outputs.tag }}
+      secret-prefix: PRODUCTION_       # PRODUCTION_VPS_HOST / _PORT / _USER / _SSH_KEY
+      # SESUAIKAN: perintah di VPS production.
+      script: |
+        cd /opt/app
+        docker compose pull app
+        docker compose up -d app
+    secrets: inherit

@@ -29,17 +29,59 @@ Repositori **publik** ini adalah sumber konfigurasi tingkat organisasi untuk **P
 | [`PULL_REQUEST_TEMPLATE.md`](PULL_REQUEST_TEMPLATE.md) | Template pull request default |
 | [`workflow-templates/`](workflow-templates/) | Template GitHub Actions organisasi (tombol **Actions → New workflow** di setiap repo) |
 | [`actions/tunggu-db/`](actions/tunggu-db/) | Action bersama: tunggu MySQL/MariaDB/Postgres/Redis siap sebelum tes |
+| [`.github/workflows/`](.github/workflows/) | Reusable workflow `build-image` dan `deploy-ssh` yang dipanggil `ci-cd.yml` setiap repo |
 
 ### Workflow template
 
 | Template | Untuk |
 |---|---|
-| Webekspres CI Laravel / Node / Python / Flutter (repo privat) | tes di kontainer image [`ci-images`](https://github.com/Webekspres/ci-images) pada runner organisasi |
-| Webekspres Deploy Docker ke VPS (repo privat) | build & push image ke GHCR lalu deploy, hanya dari `staging` dan `main` |
+| **Webekspres CI/CD standar (repo privat)** | alur utama setiap proyek: test → build image GHCR → deploy staging / production |
+| Webekspres CI Laravel / Node / Python / Flutter (repo privat) | contoh job test lengkap per stack (service database, `tunggu-db`) untuk diisi ke `ci-cd.yml` |
 | Webekspres Alur Branch (repo privat / repo publik) | menjaga alur `fitur → dev → staging → main` |
 
 Template bertanda **repo privat** memakai runner organisasi dan hanya boleh dipakai di repo privat.
 Repo publik selalu memakai runner GitHub (`ubuntu-latest`).
+
+### Alur CI/CD standar
+
+Setiap repo privat punya satu `.github/workflows/ci-cd.yml` dengan bentuk yang sama:
+
+| Kejadian | Job |
+|---|---|
+| PR ke `dev` / `staging` / `main`, push `dev` | test |
+| push `staging` | test → build (`:staging`, `:sha-<commit>`) → deploy-staging |
+| push `main` | test → build (`:latest`, `:sha-<commit>`) → deploy-production |
+
+Job test khas proyek dan ditulis di repo. Build dan deploy memanggil reusable workflow di repo ini:
+
+```yaml
+  build:
+    needs: test
+    if: github.event_name != 'pull_request' && (github.ref_name == 'staging' || github.ref_name == 'main')
+    uses: Webekspres/.github/.github/workflows/build-image.yml@v1
+    with:
+      environment: ${{ github.ref_name == 'main' && 'production' || 'staging' }}
+
+  deploy-staging:
+    needs: build
+    if: github.ref_name == 'staging'
+    uses: Webekspres/.github/.github/workflows/deploy-ssh.yml@v1
+    with:
+      environment: staging
+      image-tag: ${{ needs.build.outputs.tag }}
+      secret-prefix: STAGING_
+      script: |
+        cd /opt/app-staging && docker compose pull app && docker compose up -d app
+    secrets: inherit
+```
+
+Input lengkap ada di komentar [`build-image.yml`](.github/workflows/build-image.yml) dan
+[`deploy-ssh.yml`](.github/workflows/deploy-ssh.yml).
+
+**Versi.** Repo memanggil `@v1`. Perbaikan yang tidak mengubah input memindahkan tag `v1` sehingga semua repo
+langsung ikut; perubahan yang tidak kompatibel dirilis sebagai `v2` dan tiap repo pindah lewat PR.
+Versi runtime proyek (PHP, Node, Python, Flutter, database) tetap ditentukan di job test repo masing-masing
+dan harus sama dengan versi repo, dev, dan produksi.
 
 ### Action `tunggu-db`
 

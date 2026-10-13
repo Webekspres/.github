@@ -1,0 +1,167 @@
+# Reusable: deploy ke VPS lewat SSH di runner ARC arc-docker.
+#
+#   deploy-staging:
+#     needs: build
+#     if: github.ref_name == 'staging'
+#     uses: Webekspres/.github/.github/workflows/deploy-ssh.yml@v1
+#     with:
+#       environment: staging
+#       image-tag: ${{ needs.build.outputs.tag }}
+#       script: |
+#         cd /opt/app-staging
+#         docker compose pull app && docker compose up -d app
+#       secret-prefix: STAGING_          # membaca STAGING_VPS_HOST, STAGING_VPS_PORT, STAGING_VPS_USER, STAGING_VPS_SSH_KEY
+#     secrets: inherit
+#
+# Secret dibaca dengan NAMA (bukan nilai) supaya secret level repo maupun level GitHub Environment
+# sama-sama terbaca: secret environment hanya tersedia di job yang memakai environment tersebut.
+# Nama bawaan: <prefix>VPS_HOST, <prefix>VPS_PORT (opsional, bawaan 22), <prefix>VPS_USER, <prefix>VPS_SSH_KEY.
+# Repo dengan nama lain mengisi host-secret / port-secret / user-secret / key-secret.
+#
+# `script` dijalankan di VPS dengan bash (set -euo pipefail). Variabel yang tersedia:
+#   IMAGE_TAG    tag tetap hasil build (input image-tag), mis. sha-<commit>
+#   ENVIRONMENT  staging | production
+#   GIT_SHA      commit yang dideploy
+# Sebelum script, VPS login ke GHCR (token job, hanya baca package) dan logout setelahnya.
+# Opsional: `upload-dir` disalin ke `upload-to` di VPS sebelum script (mis. compose + skrip deploy).
+name: deploy-ssh
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: staging | production (GitHub Environment; aturan proteksi & secret environment berlaku)
+        type: string
+        required: true
+      script:
+        description: Perintah yang dijalankan di VPS.
+        type: string
+        required: true
+      image-tag:
+        type: string
+        default: ''
+      url:
+        description: URL aplikasi, tampil di halaman deployment GitHub.
+        type: string
+        default: ''
+      github-environment:
+        description: >-
+          Nama GitHub Environment untuk job ini. Kosong = sama dengan `environment`;
+          "none" = tanpa environment (hanya secret level repo, tanpa aturan proteksi environment).
+        type: string
+        default: ''
+      upload-dir:
+        description: Folder di repo yang disalin ke VPS sebelum script.
+        type: string
+        default: ''
+      upload-to:
+        description: Folder tujuan di VPS untuk upload-dir.
+        type: string
+        default: ''
+      fingerprint:
+        description: Sidik jari host key VPS (SHA256:...). Kosong = percaya host key pertama (ssh-keyscan).
+        type: string
+        default: ''
+      ghcr-login:
+        description: Login GHCR di VPS sebelum script.
+        type: boolean
+        default: true
+      timeout-minutes:
+        type: number
+        default: 30
+      secret-prefix:
+        description: Awalan nama secret SSH, mis. STAGING_ atau PRODUCTION_.
+        type: string
+        default: ''
+      host-secret:
+        type: string
+        default: VPS_HOST
+      port-secret:
+        type: string
+        default: VPS_PORT
+      user-secret:
+        type: string
+        default: VPS_USER
+      key-secret:
+        description: Kunci privat SSH (PEM/OpenSSH, boleh base64).
+        type: string
+        default: VPS_SSH_KEY
+      registry-token-secret:
+        description: Nama secret token baca GHCR untuk VPS. Kosong = token job (GITHUB_TOKEN).
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  deploy:
+    name: Deploy ${{ inputs.environment }}
+    runs-on: arc-docker
+    timeout-minutes: ${{ inputs.timeout-minutes }}
+    environment:
+      name: ${{ inputs.github-environment != 'none' && (inputs.github-environment || inputs.environment) || '' }}
+      url: ${{ inputs.github-environment != 'none' && inputs.url || '' }}
+    concurrency:
+      group: deploy-${{ github.repository }}-${{ inputs.environment }}
+      cancel-in-progress: false
+    env:
+      SSH_HOST: ${{ secrets[format('{0}{1}', inputs.secret-prefix, inputs.host-secret)] }}
+      SSH_PORT: ${{ secrets[format('{0}{1}', inputs.secret-prefix, inputs.port-secret)] }}
+      SSH_USER: ${{ secrets[format('{0}{1}', inputs.secret-prefix, inputs.user-secret)] }}
+    steps:
+      - name: Siapkan SSH
+        env:
+          SSH_KEY: ${{ secrets[format('{0}{1}', inputs.secret-prefix, inputs.key-secret)] }}
+          FINGERPRINT: ${{ inputs.fingerprint }}
+        run: |
+          host=$(printf '%s' "$SSH_HOST" | tr -d ' \r\n'); port=$(printf '%s' "${SSH_PORT:-22}" | tr -d ' \r\n')
+          user=$(printf '%s' "$SSH_USER" | tr -d ' \r\n')
+          [ -n "$host" ] && [ -n "$user" ] || { echo "::error::secret ${{ inputs.secret-prefix }}${{ inputs.host-secret }} / ${{ inputs.secret-prefix }}${{ inputs.user-secret }} kosong (environment ${{ inputs.environment }})"; exit 1; }
+          install -m 700 -d ~/.ssh
+          if printf '%s' "$SSH_KEY" | grep -q -- '-----BEGIN'; then
+            printf '%s\n' "$SSH_KEY" | tr -d '\r' > ~/.ssh/deploy_key
+          else
+            printf '%s' "$SSH_KEY" | tr -d '\r\n ' | base64 -d > ~/.ssh/deploy_key
+          fi
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keygen -y -f ~/.ssh/deploy_key >/dev/null || { echo "::error::secret key bukan kunci privat SSH yang valid"; exit 1; }
+          ssh-keyscan -p "$port" -H "$host" > ~/.ssh/known_hosts 2>/dev/null
+          if [ -n "$FINGERPRINT" ]; then
+            ssh-keygen -lf ~/.ssh/known_hosts | grep -qF "$FINGERPRINT" \
+              || { echo "::error::host key VPS tidak cocok dengan fingerprint $FINGERPRINT"; exit 1; }
+          fi
+          { echo "SSH_HOST=$host"; echo "SSH_PORT=$port"; echo "SSH_USER=$user"; } >> "$GITHUB_ENV"
+
+      - uses: actions/checkout@v4
+        if: inputs.upload-dir != ''
+
+      - name: Salin ${{ inputs.upload-dir }} ke VPS
+        if: inputs.upload-dir != ''
+        env:
+          SRC: ${{ inputs.upload-dir }}
+          DEST: ${{ inputs.upload-to }}
+        run: |
+          [ -n "$DEST" ] || { echo "::error::upload-to wajib diisi bila upload-dir dipakai"; exit 1; }
+          tar -C "$SRC" -cf - . | ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o BatchMode=yes -p "$SSH_PORT" \
+            "$SSH_USER@$SSH_HOST" "mkdir -p '$DEST' && tar -C '$DEST' -xf -"
+
+      - name: Jalankan deploy di VPS
+        env:
+          SCRIPT: ${{ inputs.script }}
+          IMAGE_TAG: ${{ inputs.image-tag }}
+          ENVIRONMENT: ${{ inputs.environment }}
+          GHCR_LOGIN: ${{ inputs.ghcr-login }}
+          GHCR_TOKEN: ${{ inputs.registry-token-secret != '' && secrets[inputs.registry-token-secret] || secrets.GITHUB_TOKEN }}
+        run: |
+          {
+            echo 'set -euo pipefail'
+            printf 'export IMAGE_TAG=%q ENVIRONMENT=%q GIT_SHA=%q\n' "$IMAGE_TAG" "$ENVIRONMENT" "$GITHUB_SHA"
+            if [ "$GHCR_LOGIN" = true ]; then
+              printf 'printf %%s %q | docker login ghcr.io -u %q --password-stdin >/dev/null\n' "$GHCR_TOKEN" "$GITHUB_ACTOR"
+              echo "trap 'docker logout ghcr.io >/dev/null 2>&1 || true' EXIT"
+            fi
+            printf '%s\n' "$SCRIPT"
+          } | ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o BatchMode=yes -o ServerAliveInterval=30 \
+                -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" 'bash -s'
