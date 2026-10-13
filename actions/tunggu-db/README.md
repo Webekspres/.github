@@ -36,7 +36,7 @@ jobs:
         image: mysql:8.4
         env: { MYSQL_ROOT_PASSWORD: root, MYSQL_DATABASE: app }
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: Webekspres/.github/actions/tunggu-db@main
         with:
           type: mysql
