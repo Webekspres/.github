@@ -1,4 +1,4 @@
-# Reusable: deploy ke VPS lewat SSH di runner ARC arc-docker.
+# Reusable: deploy ke VPS lewat SSH di runner ringan (spark; bisa diganti lewat input runs-on).
 #
 #   deploy-staging:
 #     needs: build
@@ -98,6 +98,12 @@ on:
         description: Kunci privat SSH (PEM/OpenSSH, boleh base64).
         type: string
         default: VPS_SSH_KEY
+      runs-on:
+        description: >-
+          Label runner (JSON). Bawaan runner ringan non-ARC (spark): job deploy hanya SSH, tidak perlu
+          menempati slot arc-docker yang dipakai build.
+        type: string
+        default: '["self-hosted", "light"]'
       registry-token-secret:
         description: Nama secret token baca GHCR untuk VPS. Kosong = token job (GITHUB_TOKEN).
         type: string
@@ -110,7 +116,7 @@ permissions:
 jobs:
   deploy:
     name: Deploy ${{ inputs.environment }}
-    runs-on: arc-docker
+    runs-on: ${{ fromJSON(inputs.runs-on) }}
     timeout-minutes: ${{ inputs.timeout-minutes }}
     environment:
       name: ${{ inputs.github-environment != 'none' && (inputs.github-environment || inputs.environment) || '' }}
@@ -131,32 +137,34 @@ jobs:
           host=$(printf '%s' "$SSH_HOST" | tr -d ' \r\n'); port=$(printf '%s' "${SSH_PORT:-22}" | tr -d ' \r\n')
           user=$(printf '%s' "$SSH_USER" | tr -d ' \r\n')
           [ -n "$host" ] && [ -n "$user" ] || { echo "::error::secret ${{ inputs.secret-prefix }}${{ inputs.host-secret }} / ${{ inputs.secret-prefix }}${{ inputs.user-secret }} kosong (environment ${{ inputs.environment }})"; exit 1; }
-          install -m 700 -d ~/.ssh
+          # Kunci & known_hosts di RUNNER_TEMP, bukan ~/.ssh: runner bisa permanen (spark), dihapus di akhir job.
+          d="$RUNNER_TEMP/ssh"; install -m 700 -d "$d"
           # Tanpa `printf | grep -q`: dengan pipefail, grep -q yang berhenti lebih awal membuat printf kena
           # SIGPIPE sehingga kunci PEM dianggap base64.
           case "$SSH_KEY" in
-            *-----BEGIN*) printf '%s\n' "$SSH_KEY" | tr -d '\r' > ~/.ssh/deploy_key ;;
-            *) printf '%s' "$SSH_KEY" | tr -d '\r\n ' | base64 -d > ~/.ssh/deploy_key \
+            *-----BEGIN*) printf '%s\n' "$SSH_KEY" | tr -d '\r' > "$d/deploy_key" ;;
+            *) printf '%s' "$SSH_KEY" | tr -d '\r\n ' | base64 -d > "$d/deploy_key" \
                  || { echo "::error::secret ${{ inputs.secret-prefix }}${{ inputs.key-secret }} bukan kunci PEM/OpenSSH maupun base64"; exit 1; } ;;
           esac
-          chmod 600 ~/.ssh/deploy_key
-          ssh-keygen -y -f ~/.ssh/deploy_key >/dev/null || { echo "::error::secret key bukan kunci privat SSH yang valid"; exit 1; }
+          chmod 600 "$d/deploy_key"
+          ssh-keygen -y -f "$d/deploy_key" >/dev/null || { echo "::error::secret key bukan kunci privat SSH yang valid"; exit 1; }
           for i in 1 2 3; do
-            ssh-keyscan -T 15 -p "$port" -H "$host" > ~/.ssh/known_hosts 2> "$RUNNER_TEMP/keyscan.err" || true
-            [ -s ~/.ssh/known_hosts ] && break
+            ssh-keyscan -T 15 -p "$port" -H "$host" > "$d/known_hosts" 2> "$RUNNER_TEMP/keyscan.err" || true
+            [ -s "$d/known_hosts" ] && break
             sleep 5
           done
-          if [ ! -s ~/.ssh/known_hosts ]; then
+          if [ ! -s "$d/known_hosts" ]; then
             # Nilai secret otomatis disamarkan (***) oleh GitHub di log.
             sed 's/^/  ssh-keyscan: /' "$RUNNER_TEMP/keyscan.err"
             echo "::error::tidak bisa membaca host key VPS ($host port $port); cek secret host/port dan firewall"
             exit 1
           fi
           if [ -n "$FINGERPRINT" ]; then
-            ssh-keygen -lf ~/.ssh/known_hosts | grep -F "$FINGERPRINT" >/dev/null \
+            ssh-keygen -lf "$d/known_hosts" | grep -F "$FINGERPRINT" >/dev/null \
               || { echo "::error::host key VPS tidak cocok dengan fingerprint $FINGERPRINT"; exit 1; }
           fi
-          { echo "SSH_HOST=$host"; echo "SSH_PORT=$port"; echo "SSH_USER=$user"; } >> "$GITHUB_ENV"
+          { echo "SSH_HOST=$host"; echo "SSH_PORT=$port"; echo "SSH_USER=$user"
+            echo "SSH_OPTS=-i $d/deploy_key -o UserKnownHostsFile=$d/known_hosts -o IdentitiesOnly=yes -o BatchMode=yes"; } >> "$GITHUB_ENV"
 
       - uses: actions/checkout@v7
         if: inputs.upload-dir != ''
@@ -168,7 +176,7 @@ jobs:
           DEST: ${{ inputs.upload-to }}
         run: |
           [ -n "$DEST" ] || { echo "::error::upload-to wajib diisi bila upload-dir dipakai"; exit 1; }
-          tar -C "$SRC" -cf - . | ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o BatchMode=yes -p "$SSH_PORT" \
+          tar -C "$SRC" -cf - . | ssh $SSH_OPTS -p "$SSH_PORT" \
             "$SSH_USER@$SSH_HOST" "mkdir -p '$DEST' && tar -C '$DEST' -xf -"
 
       - name: Jalankan deploy di VPS
@@ -197,7 +205,7 @@ jobs:
             fi
             printf '%s\n' "$SCRIPT"
           } > "$script_file"
-          ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o BatchMode=yes -o ServerAliveInterval=30 \
+          ssh $SSH_OPTS -o ServerAliveInterval=30 \
             -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" 'bash -s' < "$script_file"
 
       - name: Cek kesehatan
@@ -213,3 +221,7 @@ jobs:
               sleep 5
             done
           done
+
+      - name: Hapus kunci SSH
+        if: always()
+        run: rm -rf "$RUNNER_TEMP/ssh"
