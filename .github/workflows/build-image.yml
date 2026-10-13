@@ -1,0 +1,134 @@
+# Reusable: build & push satu image Docker ke GHCR di runner ARC arc-docker.
+#
+# Dipanggil dari ci-cd.yml repo privat (lihat workflow-templates/ci-cd.yml):
+#
+#   build:
+#     needs: test
+#     if: github.event_name != 'pull_request' && (github.ref_name == 'staging' || github.ref_name == 'main')
+#     uses: Webekspres/.github/.github/workflows/build-image.yml@v1
+#     with:
+#       environment: ${{ github.ref_name == 'main' && 'production' || 'staging' }}
+#     secrets: inherit
+#
+# Tag yang didorong:
+#   <image>:<tag-env>        staging | latest  (tag bergerak, untuk compose yang memakai tag ini)
+#   <image>:sha-<commit>     tag tetap; dipakai deploy (output `tag`) agar yang dideploy pasti build ini
+# Dengan input `target`, kedua tag diberi awalan nama target bila `target-prefix: true`
+# (mis. migrate-staging / migrate-sha-<commit>).
+#
+# Cache layer disimpan di GHCR (<image>:buildcache[-target]) karena dind runner arc-docker selalu kosong.
+name: build-image
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: staging | production
+        type: string
+        required: true
+      image:
+        description: Nama image tanpa registry. Bawaan nama repo (huruf kecil).
+        type: string
+        default: ''
+      context:
+        type: string
+        default: .
+      file:
+        description: Path Dockerfile. Kosong = <context>/Dockerfile.
+        type: string
+        default: ''
+      target:
+        description: Stage Dockerfile (multi-stage). Kosong = stage terakhir.
+        type: string
+        default: ''
+      target-prefix:
+        description: Beri awalan "<target>-" pada tag (untuk image kedua dari Dockerfile yang sama).
+        type: boolean
+        default: false
+      build-args:
+        description: Build-arg tanpa rahasia, satu per baris (KEY=nilai).
+        type: string
+        default: ''
+      cache:
+        description: Pakai cache layer di GHCR.
+        type: boolean
+        default: true
+      timeout-minutes:
+        type: number
+        default: 45
+    secrets:
+      build-args:
+        description: Build-arg berisi rahasia, satu per baris (KEY=nilai). Tidak tampil di log.
+        required: false
+    outputs:
+      image:
+        description: ghcr.io/webekspres/<image>
+        value: ${{ jobs.build.outputs.image }}
+      tag:
+        description: Tag tetap hasil build ini (sha-<commit> atau <target>-sha-<commit>)
+        value: ${{ jobs.build.outputs.tag }}
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    name: Build ${{ inputs.target || inputs.image || 'image' }} (${{ inputs.environment }})
+    runs-on: arc-docker
+    timeout-minutes: ${{ inputs.timeout-minutes }}
+    outputs:
+      image: ${{ steps.meta.outputs.image }}
+      tag: ${{ steps.meta.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Tentukan nama dan tag image
+        id: meta
+        env:
+          ENVIRONMENT: ${{ inputs.environment }}
+          IMAGE_NAME: ${{ inputs.image }}
+          TARGET: ${{ inputs.target }}
+          PREFIX: ${{ inputs.target-prefix }}
+        run: |
+          case "$ENVIRONMENT" in
+            staging) env_tag=staging ;;
+            production) env_tag=latest ;;
+            *) echo "::error::environment harus staging atau production (sekarang: '$ENVIRONMENT')"; exit 1 ;;
+          esac
+          name=${IMAGE_NAME:-${GITHUB_REPOSITORY#*/}}
+          image="ghcr.io/$(echo "${GITHUB_REPOSITORY_OWNER}/${name}" | tr '[:upper:]' '[:lower:]')"
+          pre=""
+          [ "$PREFIX" = true ] && [ -n "$TARGET" ] && pre="${TARGET}-"
+          {
+            echo "image=$image"
+            echo "tag=${pre}sha-${GITHUB_SHA}"
+            echo "env_tag=${pre}${env_tag}"
+            echo "cache=${image}:buildcache${TARGET:+-$TARGET}"
+          } >> "$GITHUB_OUTPUT"
+
+      # network=host: BuildKit memakai jaringan pod (MTU 1450), bukan bridge baru di dind.
+      - uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: network=host
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: ${{ inputs.context }}
+          file: ${{ inputs.file }}
+          target: ${{ inputs.target }}
+          push: true
+          build-args: |
+            ${{ inputs.build-args }}
+            ${{ secrets.build-args }}
+          tags: |
+            ${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.env_tag }}
+            ${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.tag }}
+          cache-from: ${{ inputs.cache && format('type=registry,ref={0}', steps.meta.outputs.cache) || '' }}
+          cache-to: ${{ inputs.cache && format('type=registry,ref={0},mode=max', steps.meta.outputs.cache) || '' }}

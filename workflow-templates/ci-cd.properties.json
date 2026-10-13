@@ -1,0 +1,7 @@
+{
+  "name": "Webekspres CI/CD standar (repo privat, ARC)",
+  "description": "Satu alur untuk semua proyek: test → build image GHCR → deploy staging/production lewat SSH. Build & deploy memakai reusable workflow Webekspres/.github@v1.",
+  "iconName": "octicon rocket",
+  "categories": ["Deployment", "Continuous integration"],
+  "filePatterns": ["Dockerfile$", "docker-compose\\.ya?ml$", "compose\\.ya?ml$"]
+}
