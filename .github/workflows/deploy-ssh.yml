@@ -141,8 +141,17 @@ jobs:
           esac
           chmod 600 ~/.ssh/deploy_key
           ssh-keygen -y -f ~/.ssh/deploy_key >/dev/null || { echo "::error::secret key bukan kunci privat SSH yang valid"; exit 1; }
-          ssh-keyscan -T 15 -p "$port" -H "$host" > ~/.ssh/known_hosts 2>/dev/null || true
-          [ -s ~/.ssh/known_hosts ] || { echo "::error::tidak bisa membaca host key VPS (port $port); cek secret host/port dan firewall"; exit 1; }
+          for i in 1 2 3; do
+            ssh-keyscan -T 15 -p "$port" -H "$host" > ~/.ssh/known_hosts 2> "$RUNNER_TEMP/keyscan.err" || true
+            [ -s ~/.ssh/known_hosts ] && break
+            sleep 5
+          done
+          if [ ! -s ~/.ssh/known_hosts ]; then
+            # Nilai secret otomatis disamarkan (***) oleh GitHub di log.
+            sed 's/^/  ssh-keyscan: /' "$RUNNER_TEMP/keyscan.err"
+            echo "::error::tidak bisa membaca host key VPS ($host port $port); cek secret host/port dan firewall"
+            exit 1
+          fi
           if [ -n "$FINGERPRINT" ]; then
             ssh-keygen -lf ~/.ssh/known_hosts | grep -F "$FINGERPRINT" >/dev/null \
               || { echo "::error::host key VPS tidak cocok dengan fingerprint $FINGERPRINT"; exit 1; }
