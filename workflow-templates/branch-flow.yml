@@ -24,10 +24,14 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Periksa base dan head PR
+        # Nama branch lewat env, bukan ${{ }} di script: nama branch bisa berisi perintah shell.
+        env:
+          BASE_REF: ${{ github.base_ref }}
+          HEAD_REF: ${{ github.head_ref }}
         run: |
           set -eu
-          base="${{ github.base_ref }}"
-          head="${{ github.head_ref }}"
+          base="$BASE_REF"
+          head="$HEAD_REF"
           fail() {
             echo "::error::Alur salah: $head -> $base. Yang benar: fitur/* -> dev, dev -> staging -> main."
             exit 1
@@ -42,7 +46,9 @@ jobs:
 
   hapus-branch:
     name: Hapus branch fitur
-    if: github.event.action == 'closed' && github.event.pull_request.merged == true
+    if: >-
+      github.event.action == 'closed' && github.event.pull_request.merged == true &&
+      github.event.pull_request.head.repo.full_name == github.repository
     runs-on: arc-ci
     container:
       image: ghcr.io/webekspres/ci-node:22
