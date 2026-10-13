@@ -23,7 +23,8 @@
 #   ENVIRONMENT  staging | production
 #   GIT_SHA      commit yang dideploy
 # Sebelum script, VPS login ke GHCR (token job, hanya baca package) dan logout setelahnya.
-# Opsional: `upload-dir` disalin ke `upload-to` di VPS sebelum script (mis. compose + skrip deploy).
+# Opsional: `upload-dir` disalin ke `upload-to` di VPS sebelum script (mis. compose + skrip deploy),
+# `health-url` dicek setelah script.
 name: deploy-ssh
 
 on:
@@ -60,6 +61,10 @@ on:
         default: ''
       fingerprint:
         description: Sidik jari host key VPS (SHA256:...). Kosong = percaya host key pertama (ssh-keyscan).
+        type: string
+        default: ''
+      health-url:
+        description: URL yang harus merespons 2xx setelah deploy, satu per baris (dicek dari runner, dicoba ulang ±1 menit).
         type: string
         default: ''
       ghcr-login:
@@ -165,3 +170,17 @@ jobs:
             printf '%s\n' "$SCRIPT"
           } | ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o BatchMode=yes -o ServerAliveInterval=30 \
                 -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" 'bash -s'
+
+      - name: Cek kesehatan
+        if: inputs.health-url != ''
+        env:
+          URLS: ${{ inputs.health-url }}
+        run: |
+          for url in $URLS; do
+            for i in $(seq 1 12); do
+              code=$(curl -s -o /dev/null -w '%{http_code}' -L --max-time 10 "$url" || true)
+              case "$code" in 2*) echo "OK $code $url"; continue 2 ;; esac
+              [ "$i" -eq 12 ] && { echo "::error::$url merespons $code setelah deploy"; exit 1; }
+              sleep 5
+            done
+          done
