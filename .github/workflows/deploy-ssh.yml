@@ -1,4 +1,4 @@
-# Reusable: deploy ke VPS lewat SSH di runner ARC arc-docker.
+# Reusable: deploy ke VPS lewat SSH di runner ringan (spark; bisa diganti lewat input runs-on).
 #
 #   deploy-staging:
 #     needs: build
