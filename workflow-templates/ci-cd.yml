@@ -34,11 +34,11 @@ jobs:
     name: Test
     runs-on: arc-ci
     container:
-      # SESUAIKAN: image & versi = runtime proyek (ci-php:8.x, ci-node:20/22, ci-python:3.12, ci-flutter:3.44.6)
+      # SESUAIKAN: image & versi = runtime proyek (ci-php:8.x, ci-node:22, ci-python:3.12, ci-flutter:3.44.6)
       image: ghcr.io/webekspres/ci-node:22
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       # SESUAIKAN: langkah test proyek (lihat template ci-laravel / ci-node / ci-python untuk contoh lengkap,
       # termasuk service database + Webekspres/.github/actions/tunggu-db).
       - run: npm ci

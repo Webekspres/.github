@@ -158,7 +158,7 @@ jobs:
           fi
           { echo "SSH_HOST=$host"; echo "SSH_PORT=$port"; echo "SSH_USER=$user"; } >> "$GITHUB_ENV"
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         if: inputs.upload-dir != ''
 
       - name: Salin ${{ inputs.upload-dir }} ke VPS

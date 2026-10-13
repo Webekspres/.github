@@ -22,7 +22,7 @@ jobs:
       # SESUAIKAN: tag = versi Flutter proyek (pubspec.yaml "environment.flutter" / .fvmrc).
       image: ghcr.io/webekspres/ci-flutter:3.44.6
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: flutter pub get
         run: flutter pub get
