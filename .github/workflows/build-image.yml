@@ -1,4 +1,4 @@
-# Reusable: build & push satu image Docker ke GHCR di runner ARC arc-docker.
+# Reusable: build & push satu image Docker ke GHCR (bawaan runner ARC arc-docker; repo publik: ubuntu-latest).
 #
 # Dipanggil dari ci-cd.yml repo privat (lihat workflow-templates/ci-cd.yml):
 #
@@ -56,6 +56,22 @@ on:
       timeout-minutes:
         type: number
         default: 45
+      build-arg-secrets:
+        description: >-
+          Nama secret (dipisah spasi/baris) yang dijadikan build-arg bernama sama. Untuk secret di
+          GitHub Environment (pakai bersama github-environment + secrets: inherit). Nilai tidak tampil di log.
+        type: string
+        default: ''
+      runs-on:
+        description: Label runner (JSON). Repo publik wajib '["ubuntu-latest"]'.
+        type: string
+        default: '["arc-docker"]'
+      github-environment:
+        description: >-
+          GitHub Environment untuk job build (mis. bila secret build-arg disimpan di environment).
+          Kosong = tanpa environment.
+        type: string
+        default: ''
     secrets:
       build-args:
         description: Build-arg berisi rahasia, satu per baris (KEY=nilai). Tidak tampil di log.
@@ -75,7 +91,9 @@ permissions:
 jobs:
   build:
     name: Build ${{ inputs.target || inputs.image || 'image' }} (${{ inputs.environment }})
-    runs-on: arc-docker
+    runs-on: ${{ fromJSON(inputs.runs-on) }}
+    environment:
+      name: ${{ inputs.github-environment }}
     timeout-minutes: ${{ inputs.timeout-minutes }}
     outputs:
       image: ${{ steps.meta.outputs.image }}
@@ -107,6 +125,24 @@ jobs:
             echo "cache=${image}:buildcache${TARGET:+-$TARGET}"
           } >> "$GITHUB_OUTPUT"
 
+      - name: Build-arg dari secret
+        if: inputs.build-arg-secrets != ''
+        env:
+          NAMES: ${{ inputs.build-arg-secrets }}
+          ALL_SECRETS: ${{ toJSON(secrets) }}
+        run: |
+          # Lewat GITHUB_ENV (bukan output step: output berisi secret dibuang oleh GitHub).
+          eof="EOF_$(openssl rand -hex 8)"
+          {
+            echo "SECRET_BUILD_ARGS<<$eof"
+            for name in $NAMES; do
+              value=$(printf '%s' "$ALL_SECRETS" | jq -r --arg n "$name" '.[$n] // empty')
+              [ -n "$value" ] || { echo "::error::secret $name kosong/tidak ada" >&2; exit 1; }
+              printf '%s=%s\n' "$name" "$value"
+            done
+            echo "$eof"
+          } >> "$GITHUB_ENV"
+
       # network=host: BuildKit memakai jaringan pod (MTU 1450), bukan bridge baru di dind.
       - uses: docker/setup-buildx-action@v4
         with:
@@ -127,6 +163,7 @@ jobs:
           build-args: |
             ${{ inputs.build-args }}
             ${{ secrets.build-args }}
+            ${{ env.SECRET_BUILD_ARGS }}
           tags: |
             ${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.env_tag }}
             ${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.tag }}

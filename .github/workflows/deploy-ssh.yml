@@ -66,6 +66,11 @@ on:
         description: Folder tujuan di VPS untuk upload-dir.
         type: string
         default: ''
+      known-hosts-secret:
+        description: >-
+          Nama secret berisi baris known_hosts VPS (dipin). Bila diisi, menggantikan ssh-keyscan & fingerprint.
+        type: string
+        default: ''
       fingerprint:
         description: Sidik jari host key VPS (SHA256:...). Kosong = percaya host key pertama (ssh-keyscan).
         type: string
@@ -133,6 +138,7 @@ jobs:
         env:
           SSH_KEY: ${{ secrets[format('{0}{1}', inputs.secret-prefix, inputs.key-secret)] }}
           FINGERPRINT: ${{ inputs.fingerprint }}
+          KNOWN_HOSTS: ${{ inputs.known-hosts-secret != '' && secrets[inputs.known-hosts-secret] || '' }}
         run: |
           host=$(printf '%s' "$SSH_HOST" | tr -d ' \r\n'); port=$(printf '%s' "${SSH_PORT:-22}" | tr -d ' \r\n')
           user=$(printf '%s' "$SSH_USER" | tr -d ' \r\n')
@@ -148,20 +154,24 @@ jobs:
           esac
           chmod 600 "$d/deploy_key"
           ssh-keygen -y -f "$d/deploy_key" >/dev/null || { echo "::error::secret key bukan kunci privat SSH yang valid"; exit 1; }
-          for i in 1 2 3; do
-            ssh-keyscan -T 15 -p "$port" -H "$host" > "$d/known_hosts" 2> "$RUNNER_TEMP/keyscan.err" || true
-            [ -s "$d/known_hosts" ] && break
-            sleep 5
-          done
-          if [ ! -s "$d/known_hosts" ]; then
-            # Nilai secret otomatis disamarkan (***) oleh GitHub di log.
-            sed 's/^/  ssh-keyscan: /' "$RUNNER_TEMP/keyscan.err"
-            echo "::error::tidak bisa membaca host key VPS ($host port $port); cek secret host/port dan firewall"
-            exit 1
-          fi
-          if [ -n "$FINGERPRINT" ]; then
-            ssh-keygen -lf "$d/known_hosts" | grep -F "$FINGERPRINT" >/dev/null \
-              || { echo "::error::host key VPS tidak cocok dengan fingerprint $FINGERPRINT"; exit 1; }
+          if [ -n "$KNOWN_HOSTS" ]; then
+            printf '%s\n' "$KNOWN_HOSTS" | tr -d '\r' > "$d/known_hosts"
+          else
+            for i in 1 2 3; do
+              ssh-keyscan -T 15 -p "$port" -H "$host" > "$d/known_hosts" 2> "$RUNNER_TEMP/keyscan.err" || true
+              [ -s "$d/known_hosts" ] && break
+              sleep 5
+            done
+            if [ ! -s "$d/known_hosts" ]; then
+              # Nilai secret otomatis disamarkan (***) oleh GitHub di log.
+              sed 's/^/  ssh-keyscan: /' "$RUNNER_TEMP/keyscan.err"
+              echo "::error::tidak bisa membaca host key VPS ($host port $port); cek secret host/port dan firewall"
+              exit 1
+            fi
+            if [ -n "$FINGERPRINT" ]; then
+              ssh-keygen -lf "$d/known_hosts" | grep -F "$FINGERPRINT" >/dev/null \
+                || { echo "::error::host key VPS tidak cocok dengan fingerprint $FINGERPRINT"; exit 1; }
+            fi
           fi
           { echo "SSH_HOST=$host"; echo "SSH_PORT=$port"; echo "SSH_USER=$user"
             echo "SSH_OPTS=-i $d/deploy_key -o UserKnownHostsFile=$d/known_hosts -o IdentitiesOnly=yes -o BatchMode=yes"; } >> "$GITHUB_ENV"
