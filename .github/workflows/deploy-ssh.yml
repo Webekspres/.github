@@ -138,11 +138,15 @@ jobs:
         env:
           SSH_KEY: ${{ secrets[format('{0}{1}', inputs.secret-prefix, inputs.key-secret)] }}
           FINGERPRINT: ${{ inputs.fingerprint }}
+          NAME_HOST: ${{ inputs.secret-prefix }}${{ inputs.host-secret }}
+          NAME_USER: ${{ inputs.secret-prefix }}${{ inputs.user-secret }}
+          NAME_KEY: ${{ inputs.secret-prefix }}${{ inputs.key-secret }}
+          ENVIRONMENT: ${{ inputs.environment }}
           KNOWN_HOSTS: ${{ inputs.known-hosts-secret != '' && secrets[inputs.known-hosts-secret] || '' }}
         run: |
           host=$(printf '%s' "$SSH_HOST" | tr -d ' \r\n'); port=$(printf '%s' "${SSH_PORT:-22}" | tr -d ' \r\n')
           user=$(printf '%s' "$SSH_USER" | tr -d ' \r\n')
-          [ -n "$host" ] && [ -n "$user" ] || { echo "::error::secret ${{ inputs.secret-prefix }}${{ inputs.host-secret }} / ${{ inputs.secret-prefix }}${{ inputs.user-secret }} kosong (environment ${{ inputs.environment }})"; exit 1; }
+          [ -n "$host" ] && [ -n "$user" ] || { echo "::error::secret $NAME_HOST / $NAME_USER kosong (environment $ENVIRONMENT)"; exit 1; }
           # Kunci & known_hosts di RUNNER_TEMP, bukan ~/.ssh: runner bisa permanen (spark), dihapus di akhir job.
           d="$RUNNER_TEMP/ssh"; install -m 700 -d "$d"
           # Tanpa `printf | grep -q`: dengan pipefail, grep -q yang berhenti lebih awal membuat printf kena
@@ -150,7 +154,7 @@ jobs:
           case "$SSH_KEY" in
             *-----BEGIN*) printf '%s\n' "$SSH_KEY" | tr -d '\r' > "$d/deploy_key" ;;
             *) printf '%s' "$SSH_KEY" | tr -d '\r\n ' | base64 -d > "$d/deploy_key" \
-                 || { echo "::error::secret ${{ inputs.secret-prefix }}${{ inputs.key-secret }} bukan kunci PEM/OpenSSH maupun base64"; exit 1; } ;;
+                 || { echo "::error::secret $NAME_KEY bukan kunci PEM/OpenSSH maupun base64"; exit 1; } ;;
           esac
           chmod 600 "$d/deploy_key"
           ssh-keygen -y -f "$d/deploy_key" >/dev/null || { echo "::error::secret key bukan kunci privat SSH yang valid"; exit 1; }

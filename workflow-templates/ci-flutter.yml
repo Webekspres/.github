@@ -10,6 +10,9 @@ on:
     paths-ignore: ['**.md', 'docs/**']
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.ref == 'refs/heads/dev' || github.event_name == 'pull_request' }}
@@ -19,7 +22,7 @@ jobs:
     runs-on: arc-ci
     timeout-minutes: 60
     container:
-      # SESUAIKAN: tag = versi Flutter proyek (pubspec.yaml "environment.flutter" / .fvmrc).
+      # SESUAIKAN: tag = versi Flutter proyek (pubspec.yaml "environment.flutter" / .fvmrc): 3.44.6 atau 3.47.4.
       image: ghcr.io/webekspres/ci-flutter:3.44.6
     steps:
       - uses: actions/checkout@v7
