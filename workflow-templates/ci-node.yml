@@ -11,6 +11,9 @@ on:
     paths-ignore: ['**.md', 'docs/**']
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.ref == 'refs/heads/dev' || github.event_name == 'pull_request' }}
@@ -20,7 +23,7 @@ jobs:
     runs-on: arc-ci
     timeout-minutes: 30
     container:
-      # SESUAIKAN: versi Node = .nvmrc / "engines.node" / Dockerfile produksi (20 / 22).
+      # Node 22 (satu-satunya tag ci-node; Node 20 sudah EOL). Samakan Dockerfile produksi ke Node 22.
       image: ghcr.io/webekspres/ci-node:22
     steps:
       - uses: actions/checkout@v7

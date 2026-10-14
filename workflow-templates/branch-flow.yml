@@ -1,11 +1,11 @@
-# Alur branch (repo PRIVAT) — runner ARC arc-ci. Repo publik: pakai template "branch-flow-publik".
+# Alur branch (repo PRIVAT) — runner ringan (spark, label light), tanpa kontainer. Repo publik: pakai template "branch-flow-publik".
 name: Alur branch
 
 # Menjaga alur merge: fitur/* -> dev -> staging -> main
 # - PR divalidasi saat dibuka / disinkronkan / dibuka ulang.
 # - Branch fitur dihapus otomatis setelah PR di-merge; dev/staging/main tidak dihapus.
 #   (Setelan repo "Automatically delete head branches" dimatikan agar dev/staging aman.)
-# Runner ARC mewajibkan container, jadi job dijalankan di image CI org.
+# Hanya shell + curl (cek nama branch, hapus branch via API), jadi tidak memakai slot arc-ci di kris-lan.
 on:
   pull_request:
     types: [opened, edited, reopened, synchronize, closed]
@@ -18,9 +18,7 @@ jobs:
   alur:
     name: fitur -> dev -> staging -> main
     if: github.event.action != 'closed'
-    runs-on: arc-ci
-    container:
-      image: ghcr.io/webekspres/ci-node:22
+    runs-on: [self-hosted, light]
     timeout-minutes: 5
     steps:
       - name: Periksa base dan head PR
@@ -49,9 +47,7 @@ jobs:
     if: >-
       github.event.action == 'closed' && github.event.pull_request.merged == true &&
       github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: arc-ci
-    container:
-      image: ghcr.io/webekspres/ci-node:22
+    runs-on: [self-hosted, light]
     timeout-minutes: 5
     steps:
       - name: Hapus branch head jika bukan branch tetap
