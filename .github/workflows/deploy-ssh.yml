@@ -186,7 +186,8 @@ jobs:
           DEST: ${{ inputs.upload-to }}
         run: |
           [ -n "$DEST" ] || { echo "::error::upload-to wajib diisi bila upload-dir dipakai"; exit 1; }
-          tar -C "$SRC" -cf - . | ssh $SSH_OPTS -p "$SSH_PORT" \
+          # .git tidak ikut: berisi token checkout (extraheader) dan tidak dibutuhkan di VPS.
+          tar --exclude=.git -C "$SRC" -cf - . | ssh $SSH_OPTS -p "$SSH_PORT" \
             "$SSH_USER@$SSH_HOST" "mkdir -p '$DEST' && tar -C '$DEST' -xf -"
 
       - name: Jalankan deploy di VPS
