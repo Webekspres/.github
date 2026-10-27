@@ -103,8 +103,8 @@ Tempatnya di repo privat [`.github-private`](https://github.com/Webekspres/.gith
 | Publik | [`.github/profile/README.md`](profile/README.md) (repo ini) | semua pengunjung |
 | Anggota | `.github-private/profile/README.md` | anggota org (pilih *View as: Member*) |
 
-Profil publik memperkenalkan perusahaan. Profil anggota adalah titik awal kerja anggota: langkah awal,
-tautan dokumentasi internal, dan aturan singkat. Isinya memang berbeda; jangan menyalin satu ke yang lain.
+Profil publik memperkenalkan perusahaan. Profil anggota adalah titik awal kerja anggota: langkah awal, alur rilis, CI/CD,
+dokumentasi internal, peta repositori, dan FAQ. Isinya memang berbeda; jangan menyalin satu ke yang lain.
 
 Aturan saat mengubah profil:
 
