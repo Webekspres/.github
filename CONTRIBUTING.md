@@ -147,7 +147,7 @@ Prinsip umum yang wajib diikuti kontributor:
 
 ## Pertanyaan?
 
-- **Email:** data.webekspres@gmail.com
+- **Email:** info@webekspres.co.id
 - **Website:** [webekspres.co.id](https://webekspres.co.id)
 - Lihat juga [SUPPORT.md](SUPPORT.md) untuk panduan bantuan
 

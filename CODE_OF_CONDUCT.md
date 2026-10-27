@@ -60,7 +60,7 @@ representative at an online or offline event.
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
 reported to the community leaders responsible for enforcement at
-**data.webekspres@gmail.com**.
+**info@webekspres.co.id**.
 
 All complaints will be reviewed and investigated promptly and fairly.
 
@@ -152,4 +152,4 @@ Perilaku yang tidak dapat diterima:
 
 ### Pelaporan
 
-Laporkan pelanggaran ke: **data.webekspres@gmail.com**
+Laporkan pelanggaran ke: **info@webekspres.co.id**

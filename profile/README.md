@@ -217,7 +217,7 @@ Kode proyek klien disimpan di repositori privat.
 |---|---|
 | Alamat | Jl. Raya Proklamasi Gg. Adimix, Perumahan Bumi Indah Proklamasi Blok F1 No. 12A, Tunggakjati, Karawang Barat, Karawang, Jawa Barat 41311 ([peta](https://maps.app.goo.gl/Suq2KmcC4iFnZfo98)) |
 | Telepon / WhatsApp | [0859 7482 9122](https://wa.me/6285974829122) · 0851 1739 1788 |
-| Email | [info@webekspres.co.id](mailto:info@webekspres.co.id) · [data.webekspres@gmail.com](mailto:data.webekspres@gmail.com) |
+| Email | [info@webekspres.co.id](mailto:info@webekspres.co.id) |
 | Situs | [webekspres.co.id](https://webekspres.co.id) (profil perusahaan) · [webekspres.id](https://webekspres.id) (layanan & pemesanan) |
 
 <div align="center">

@@ -19,7 +19,7 @@ Kami sangat menghargai laporan kerentanan keamanan dari komunitas. Jika Anda men
 
 ### Cara Melaporkan
 
-Kirim laporan ke: **data.webekspres@gmail.com**
+Kirim laporan ke: **info@webekspres.co.id**
 
 Subjek email: `[SECURITY] <nama proyek> - deskripsi singkat`
 
