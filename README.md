@@ -1,22 +1,19 @@
-<div align="center">
+# Webekspres `.github`
 
-<img width="4010" height="1127" alt="Frame 427320582" src="https://github.com/user-attachments/assets/8a44720a-a8b4-4a13-9461-52ba5112c838" />
-
-
-# Repositori `.github` Organisasi Webekspres
-
-**Profil organisasi publik dan file default community health untuk [Webekspres](https://github.com/Webekspres)**
-
-[![Website](https://img.shields.io/badge/Website-webekspres.co.id-0f3460?style=for-the-badge&logo=googlechrome&logoColor=white)](https://webekspres.co.id)
-[![Email](https://img.shields.io/badge/Email-data.webekspres%40gmail.com-1a1a2e?style=for-the-badge&logo=gmail&logoColor=white)](mailto:data.webekspres@gmail.com)
-
-</div>
-
----
+Profil organisasi publik, file default komunitas, serta workflow dan action CI bersama untuk
+[Webekspres](https://github.com/Webekspres). Repo ini **wajib publik**.
 
 ## Tentang Repositori Ini
 
-Repositori **publik** ini adalah sumber konfigurasi tingkat organisasi untuk **PT Webekspres Teknologi Indonesia**. GitHub menggunakan repo bernama `.github` untuk menampilkan **profil organisasi publik** serta menyediakan **file default** yang otomatis berlaku di seluruh repositori organisasi yang belum memiliki file serupa.
+Repo ini punya tiga peran yang berbeda dan saling lepas:
+
+1. **Profil organisasi publik.** GitHub hanya membaca [`profile/README.md`](profile/README.md) untuk halaman
+   [github.com/Webekspres](https://github.com/Webekspres). `README.md` yang sedang Anda baca **tidak** tampil di sana.
+2. **File default komunitas.** CONTRIBUTING, CODE_OF_CONDUCT, SECURITY, SUPPORT, dan template issue/PR berlaku
+   otomatis untuk setiap repo organisasi yang belum punya file sendiri.
+3. **CI bersama.** Reusable workflow `build-image` (build image Docker ke GHCR) dan `deploy-ssh`, action
+   `tunggu-db`, serta template workflow. Repo lain memanggilnya lewat tag `@v1`, jadi mengubah README atau profil
+   tidak memengaruhi CI.
 
 | File / Folder | Fungsi |
 |---|---|
@@ -101,19 +98,18 @@ Tempatnya di repo privat [`.github-private`](https://github.com/Webekspres/.gith
 
 ## Profil Organisasi
 
-| Tampilan | Repositori | Visibility |
+| Tampilan | File | Dilihat oleh |
 |---|---|---|
-| **Publik** (semua pengunjung) | `.github` (repo ini) | Public |
-| **Member** (khusus anggota org) | `.github-private` | Private |
+| Publik | [`.github/profile/README.md`](profile/README.md) (repo ini) | semua pengunjung |
+| Anggota | `.github-private/profile/README.md` | anggota org (pilih *View as: Member*) |
 
-Kedua repositori memiliki `profile/README.md` masing-masing. GitHub menampilkan versi publik dari repo ini kepada semua orang, dan versi member dari `.github-private` kepada anggota organisasi.
+Profil publik memperkenalkan perusahaan. Profil anggota adalah titik awal kerja anggota: langkah awal,
+tautan dokumentasi internal, dan aturan singkat. Isinya memang berbeda; jangan menyalin satu ke yang lain.
 
----
+Aturan saat mengubah profil:
 
-<div align="center">
-
-**PT Webekspres Teknologi Indonesia** · Indonesia
-
-![Footer](https://capsule-render.vercel.app/api?type=waving&color=0:0f3460,100:1a1a2e&height=80&section=footer)
-
-</div>
+- Pakai URL lengkap (`https://github.com/Webekspres/...`) untuk tautan dan gambar, supaya hasilnya sama di
+  halaman organisasi dan saat file dibuka langsung.
+- Hindari widget pihak ketiga (penghitung kunjungan, banner gelombang, badge berwarna gelap): sering gagal
+  dimuat dan tidak terbaca di tema gelap GitHub. Teks dan tabel Markdown biasa selalu tampil.
+- Gambar yang diunggah lewat repo privat hanya terlihat oleh anggota. Gambar profil publik diunggah dari repo ini.
