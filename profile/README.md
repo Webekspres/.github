@@ -172,7 +172,7 @@ Portofolio lengkap: [webekspres.id/portofolio](https://webekspres.id/portofolio/
 Setiap perubahan masuk lewat pull request dan diuji otomatis sebelum sampai ke klien.
 
 ```mermaid
-flowchart LR
+flowchart TB
     F["Branch fitur"] -- "PR + tes" --> D["dev"]
     D -- "PR + tes" --> S["staging"]
     S -- "PR + tes" --> M["main"]
