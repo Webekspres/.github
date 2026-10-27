@@ -8,7 +8,7 @@ Butuh bantuan terkait proyek Webekspres? Berikut cara mendapatkan dukungan.
 
 | Kanal | Untuk | Kontak |
 |-------|-------|--------|
-| **Email** | Pertanyaan umum, dukungan klien | [data.webekspres@gmail.com](mailto:data.webekspres@gmail.com) |
+| **Email** | Pertanyaan umum, dukungan klien | [info@webekspres.co.id](mailto:info@webekspres.co.id) |
 | **Website** | Informasi layanan & portfolio | [webekspres.co.id](https://webekspres.co.id) |
 | **GitHub Issues** | Bug report & feature request | Buka issue di repositori terkait |
 | **Keamanan** | Laporan kerentanan | Lihat [SECURITY.md](SECURITY.md) |

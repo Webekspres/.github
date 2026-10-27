@@ -4,7 +4,7 @@ contact_links:
     url: https://webekspres.co.id
     about: Hubungi kami melalui website untuk konsultasi proyek atau pertanyaan umum
   - name: Laporan Keamanan
-    url: mailto:data.webekspres@gmail.com?subject=%5BSECURITY%5D%20Laporan%20Kerentanan
+    url: mailto:info@webekspres.co.id?subject=%5BSECURITY%5D%20Laporan%20Kerentanan
     about: Jangan buka issue publik untuk kerentanan keamanan — kirim email ke sini
   - name: Panduan Kontribusi
     url: https://github.com/Webekspres/.github/blob/main/CONTRIBUTING.md
