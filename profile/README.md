@@ -9,7 +9,7 @@ untuk UMKM, perusahaan, institusi pendidikan, dan instansi di Indonesia.</p>
 
 <p>
   <a href="https://webekspres.co.id"><img alt="Website: webekspres.co.id" src="https://img.shields.io/badge/Website-webekspres.co.id-0e7490?style=for-the-badge&logo=googlechrome&logoColor=white" /></a>
-  <a href="https://webekspres.id"><img alt="Layanan: webekspres.id" src="https://img.shields.io/badge/Layanan-webekspres.id-0e7490?style=for-the-badge&logo=googlechrome&logoColor=white" /></a>
+  <a href="https://webekspres.id"><img alt="Services: webekspres.id" src="https://img.shields.io/badge/Services-webekspres.id-0e7490?style=for-the-badge&logo=googlechrome&logoColor=white" /></a>
   <a href="mailto:info@webekspres.co.id"><img alt="Email: info@webekspres.co.id" src="https://img.shields.io/badge/Email-info%40webekspres.co.id-0e7490?style=for-the-badge&logo=gmail&logoColor=white" /></a>
 </p>
 <p>
@@ -19,21 +19,21 @@ untuk UMKM, perusahaan, institusi pendidikan, dan instansi di Indonesia.</p>
 </p>
 
 <p>
-  <a href="#tentang-kami">Tentang</a> ·
-  <a href="#layanan">Layanan</a> ·
-  <a href="#portofolio-pilihan">Portofolio</a> ·
-  <a href="#teknologi">Teknologi</a> ·
-  <a href="#apa-kata-klien">Testimoni</a> ·
-  <a href="#keuntungan-paket-website">Paket</a> ·
-  <a href="#repositori-publik">Repositori Publik</a> ·
-  <a href="#hubungi-kami">Kontak</a>
+  <a href="#about-us">About</a> ·
+  <a href="#services">Services</a> ·
+  <a href="#portfolio">Portfolio</a> ·
+  <a href="#tech-stack">Tech Stack</a> ·
+  <a href="#testimonials">Testimonials</a> ·
+  <a href="#website-packages">Packages</a> ·
+  <a href="#open-source">Open Source</a> ·
+  <a href="#contact-us">Contact</a>
 </p>
 
 </div>
 
 ---
 
-## Tentang Kami
+## About Us
 
 **PT Webekspres Teknologi Indonesia**, dikenal sebagai **Webekspres**, adalah mitra layanan digital yang membantu
 bisnis tumbuh lewat website, aplikasi, perangkat lunak, dan pemasaran digital. Kami fokus pada desain yang rapi,
@@ -53,12 +53,12 @@ maupun desain website, karena semuanya kami urus.
 
 <sub>Angka dari halaman <a href="https://webekspres.co.id/about/">About</a> di situs resmi. Nomor Induk Berusaha (NIB): 0310240053735.</sub>
 
-### Visi
+### Vision
 
 Menjadi mitra digital tepercaya bagi UMKM dan institusi di Indonesia, khususnya di daerah, dalam membangun
 kehadiran online yang profesional, efisien, dan berdampak.
 
-### Misi
+### Mission
 
 - Menyediakan jasa pembuatan website dan aplikasi yang cepat, mudah, dan terjangkau.
 - Mendukung pertumbuhan bisnis lokal lewat solusi digital yang efektif dan ramah pengguna.
@@ -66,7 +66,7 @@ kehadiran online yang profesional, efisien, dan berdampak.
 - Memberi dukungan dan edukasi agar klien bisa mengelola platformnya sendiri.
 - Terus berinovasi mengikuti perkembangan teknologi untuk menjaga kualitas layanan.
 
-## Layanan
+## Services
 
 <table>
 <tr>
@@ -116,15 +116,15 @@ kehadiran online yang profesional, efisien, dan berdampak.
 </tr>
 </table>
 
-## Kenapa Webekspres
+## Why Webekspres
 
-| Dukungan penuh | Kualitas | Ide baru | Pemantauan |
+| Full Support | Quality | New Ideas | Monitoring |
 |:---:|:---:|:---:|:---:|
 | Pendampingan dan konsultasi berkelanjutan setelah proyek selesai | Standar kualitas tinggi di setiap rilis | Pendekatan yang inovatif untuk tiap kebutuhan | Pemantauan menyeluruh atas sistem yang kami kelola |
 
-## Portofolio Pilihan
+## Portfolio
 
-| Proyek | Klien | Ringkasan |
+| Project | Client | Summary |
 |---|---|---|
 | Website dealer mobil | PT. Central Mekar Abyudaya | Situs resmi dealer Chery Indonesia dengan katalog, harga, dan pemesanan online |
 | Website konstruksi & arsitektur | Kakumagumi Corporation | Profil perusahaan konstruksi dan arsitektur beserta proyek dan layanan utamanya |
@@ -135,15 +135,15 @@ kehadiran online yang profesional, efisien, dan berdampak.
 | Website tour & travel | Agung Japan Tour | Website tur dan perjalanan |
 | Web aplikasi POS | Sahabat Kardus | Aplikasi web POS untuk mitra dan cabang |
 
-**Klien luar negeri:** Kansai Kougyou · Japan Technes Corp · Shinkawa Corporation · Cafe Cinnamon
+**International clients:** Kansai Kougyou · Japan Technes Corp · Shinkawa Corporation · Cafe Cinnamon
 
 Portofolio lengkap: [webekspres.id/portofolio](https://webekspres.id/portofolio/).
 
-## Teknologi
+## Tech Stack
 
 <table>
 <tr>
-<th align="left">Bahasa</th>
+<th align="left">Languages</th>
 <td><img height="40" alt="PHP, JavaScript, TypeScript, Python, Dart, Go" src="https://skillicons.dev/icons?i=php,js,ts,python,dart,go" /></td>
 <td>PHP, JavaScript, TypeScript, Python, Dart, Go</td>
 </tr>
@@ -174,11 +174,11 @@ Portofolio lengkap: [webekspres.id/portofolio](https://webekspres.id/portofolio/
 </tr>
 </table>
 
-## Apa Kata Klien
+## Testimonials
 
 <div align="center">
 
-**Bagus sekali** — berdasarkan 50 ulasan pelanggan
+**Bagus sekali** — rating dari 50 customer reviews
 
 </div>
 
@@ -189,7 +189,7 @@ Portofolio lengkap: [webekspres.id/portofolio](https://webekspres.id/portofolio/
 
 <sub>Ulasan ditampilkan di <a href="https://webekspres.id">webekspres.id</a>.</sub>
 
-## Keuntungan Paket Website
+## Website Packages
 
 Website company profile bisa online dalam **3–7 hari**, dengan desain modern, responsif, dan mudah digunakan.
 
@@ -217,9 +217,9 @@ Website company profile bisa online dalam **3–7 hari**, dengan desain modern, 
 </table>
 
 <details>
-<summary><b>Jenis website & sistem yang bisa kami buat</b></summary>
+<summary><b>What we can build</b></summary>
 
-| Bisnis & UMKM | Pendidikan | Instansi & layanan |
+| Business & SMEs | Education | Public Sector & Services |
 |---|---|---|
 | Company profile | Website sekolah & kampus | Sistem pendataan penduduk |
 | Toko online & marketplace | E-learning & kursus online | Sistem antrian rumah sakit |
@@ -232,18 +232,18 @@ Website company profile bisa online dalam **3–7 hari**, dengan desain modern, 
 
 </details>
 
-## Repositori Publik
+## Open Source
 
-| Repositori | Isi |
+| Repository | Description |
 |---|---|
 | [`.github`](https://github.com/Webekspres/.github) | Profil ini, file default komunitas, template workflow, reusable workflow `build-image` & `deploy-ssh`, action `tunggu-db` |
 | [`ci-images`](https://github.com/Webekspres/ci-images) | Image Docker untuk CI (`ci-php`, `ci-node`, `ci-python`, `ci-flutter`), dibangun ulang tiap bulan dengan patch keamanan |
 
 Kode proyek klien disimpan di repositori privat.
 
-## Panduan untuk Kontributor
+## Contributing
 
-| Dokumen | Isi |
+| Document | Description |
 |---|---|
 | [Panduan Kontribusi](https://github.com/Webekspres/.github/blob/main/CONTRIBUTING.md) | Alur kerja Git, standar kode, dan proses PR |
 | [Kode Etik](https://github.com/Webekspres/.github/blob/main/CODE_OF_CONDUCT.md) | Prinsip kolaborasi dan perilaku yang diharapkan |
@@ -254,7 +254,7 @@ Kode proyek klien disimpan di repositori privat.
 > Menemukan celah keamanan di salah satu produk kami? Jangan buka issue publik. Ikuti langkah di
 > [Kebijakan Keamanan](https://github.com/Webekspres/.github/blob/main/SECURITY.md).
 
-## Hubungi Kami
+## Contact Us
 
 | | |
 |---|---|
@@ -268,6 +268,6 @@ Kode proyek klien disimpan di repositori privat.
 Konsultasi awal **gratis**. Ceritakan kebutuhan Anda lewat [WhatsApp](https://wa.me/6285974829122)
 atau [email](mailto:info@webekspres.co.id).
 
-<sub><a href="#">Kembali ke atas</a></sub>
+<sub><a href="#">Back to top</a></sub>
 
 </div>
