@@ -23,7 +23,8 @@ untuk UMKM, perusahaan, institusi pendidikan, dan instansi di Indonesia.</p>
   <a href="#layanan">Layanan</a> ·
   <a href="#portofolio-pilihan">Portofolio</a> ·
   <a href="#teknologi">Teknologi</a> ·
-  <a href="#cara-kami-merilis-perangkat-lunak">Cara Kami Merilis</a> ·
+  <a href="#apa-kata-klien">Testimoni</a> ·
+  <a href="#keuntungan-paket-website">Paket</a> ·
   <a href="#repositori-publik">Repositori Publik</a> ·
   <a href="#hubungi-kami">Kontak</a>
 </p>
@@ -129,6 +130,12 @@ kehadiran online yang profesional, efisien, dan berdampak.
 | Website konstruksi & arsitektur | Kakumagumi Corporation | Profil perusahaan konstruksi dan arsitektur beserta proyek dan layanan utamanya |
 | Website tur & perjalanan | PT. Mosaik Karya Amanah | Pemesanan tur, tiket, dan paket wisata dalam satu platform |
 | Website pemasok industri | Nexxo Prima Indonesia | Katalog produk dan layanan pemasok industri dan infrastruktur |
+| Portal berita | Karawang Center | Portal berita online |
+| Website ekspor | SBS Commodity · Manggis Indonesia | Website untuk bisnis ekspor |
+| Website tour & travel | Agung Japan Tour | Website tur dan perjalanan |
+| Web aplikasi POS | Sahabat Kardus | Aplikasi web POS untuk mitra dan cabang |
+
+**Klien luar negeri:** Kansai Kougyou · Japan Technes Corp · Shinkawa Corporation · Cafe Cinnamon
 
 Portofolio lengkap: [webekspres.id/portofolio](https://webekspres.id/portofolio/).
 
@@ -167,27 +174,63 @@ Portofolio lengkap: [webekspres.id/portofolio](https://webekspres.id/portofolio/
 </tr>
 </table>
 
-## Cara Kami Merilis Perangkat Lunak
+## Apa Kata Klien
 
-Setiap perubahan masuk lewat pull request dan diuji otomatis sebelum sampai ke klien.
+<div align="center">
 
-```mermaid
-flowchart TB
-    F["Branch fitur"] -- "PR + tes" --> D["dev"]
-    D -- "PR + tes" --> S["staging"]
-    S -- "PR + tes" --> M["main"]
-    S -. "build image, deploy" .-> ST(["Server staging<br/>uji coba klien"])
-    M -. "build image, deploy" .-> PR(["Server production"])
-```
+**Bagus sekali** — berdasarkan 50 ulasan pelanggan
 
-| Tahap | Yang terjadi |
+</div>
+
+| | |
 |---|---|
-| `dev` | Integrasi harian tim: lint, typecheck, dan unit test di setiap PR |
-| `staging` | Seluruh tes berjalan, image Docker dibangun, lalu dipasang di server staging untuk diuji klien |
-| `main` | Versi yang disetujui dibangun ulang dan dipasang ke production |
+| *"Jasa dan hasilnya memuaskan sesuai permintaan. Adminnya juga gercep respon."* <br/>— Nike Endar Sulistyaningsih | *"Pelayanan prima, fast respon, penjelasan terkait basic pengelolaan website jelas mudah dimengerti."* <br/>— Wiwit Wahyu |
+| *"Sangat profesional dan selalu menjadi yang terbaik."* <br/>— Faisal Satta | *"Sangat recommended, fast action and helpful!"* <br/>— Tri Gunanto |
 
-Workflow dan action yang menjalankan alur ini terbuka untuk umum di repo
-[`.github`](https://github.com/Webekspres/.github).
+<sub>Ulasan ditampilkan di <a href="https://webekspres.id">webekspres.id</a>.</sub>
+
+## Keuntungan Paket Website
+
+Website company profile bisa online dalam **3–7 hari**, dengan desain modern, responsif, dan mudah digunakan.
+
+<table>
+<tr>
+<td width="50%" valign="top">
+
+- Lebih dari 400 template premium
+- Gratis hosting & domain
+- Gratis email bisnis
+- Gratis sertifikat SSL/HTTPS
+- Gratis desain logo
+
+</td>
+<td width="50%" valign="top">
+
+- Gratis SEO basic
+- Unlimited bandwidth
+- Akses penuh pengelolaan website
+- Layanan garansi selamanya
+- Konsultasi gratis sebelum mulai
+
+</td>
+</tr>
+</table>
+
+<details>
+<summary><b>Jenis website & sistem yang bisa kami buat</b></summary>
+
+| Bisnis & UMKM | Pendidikan | Instansi & layanan |
+|---|---|---|
+| Company profile | Website sekolah & kampus | Sistem pendataan penduduk |
+| Toko online & marketplace | E-learning & kursus online | Sistem antrian rumah sakit |
+| Portal berita online | Penerimaan siswa baru | Sistem informasi rumah sakit |
+| Booking hotel | Ujian online | Sistem surat-menyurat |
+| Sistem akuntansi & penagihan | Penilaian siswa | Sistem e-budgeting |
+| Inventory & penggajian | Pembayaran sekolah | Agenda kegiatan |
+| Tracking pengiriman barang | Perpustakaan | Website donasi |
+| Absen online & kepegawaian | Pendaftaran online | Sistem pengarsipan |
+
+</details>
 
 ## Repositori Publik
 
