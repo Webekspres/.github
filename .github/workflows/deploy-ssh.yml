@@ -52,6 +52,13 @@ on:
           mis. "VPS_DEPLOY_PATH". Nilainya tidak tampil di log.
         type: string
         default: ''
+      concurrency-key:
+        description: >-
+          Kunci tambahan untuk grup concurrency deploy, mis. nama app di monorepo. Kosong =
+          perilaku lama (`deploy-<repo>-<environment>`). Isi bila satu repo men-deploy beberapa
+          app, agar deploy app berbeda tidak saling membatalkan antrean.
+        type: string
+        default: ''
       github-environment:
         description: >-
           Nama GitHub Environment untuk job ini. Kosong = sama dengan `environment`;
@@ -127,7 +134,7 @@ jobs:
       name: ${{ inputs.github-environment != 'none' && (inputs.github-environment || inputs.environment) || '' }}
       url: ${{ inputs.github-environment != 'none' && inputs.url || '' }}
     concurrency:
-      group: deploy-${{ github.repository }}-${{ inputs.environment }}
+      group: deploy-${{ github.repository }}${{ inputs.concurrency-key != '' && format('-{0}', inputs.concurrency-key) || '' }}-${{ inputs.environment }}
       cancel-in-progress: false
     env:
       SSH_HOST: ${{ secrets[format('{0}{1}', inputs.secret-prefix, inputs.host-secret)] }}
