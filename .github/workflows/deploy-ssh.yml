@@ -23,7 +23,8 @@
 #   ENVIRONMENT  staging | production
 #   GIT_SHA      commit yang dideploy
 #   + setiap nama di input `script-secrets` (nilai secret dengan nama yang sama)
-# Sebelum script, VPS login ke GHCR (token job, hanya baca package) dan logout setelahnya.
+# Sebelum script, VPS login ke GHCR (token job, hanya baca package) di DOCKER_CONFIG sementara milik deploy
+# ini, yang dihapus setelahnya; deploy lain yang berjalan bersamaan di VPS yang sama tidak terpengaruh.
 # Opsional: `upload-dir` disalin ke `upload-to` di VPS sebelum script (mis. compose + skrip deploy),
 # `health-url` dicek setelah script.
 name: deploy-ssh
@@ -222,8 +223,14 @@ jobs:
               printf 'export %s=%q\n' "$name" "$value"
             done
             if [ "$GHCR_LOGIN" = true ]; then
+              # Kredensial per deploy (DOCKER_CONFIG sementara), bukan ~/.docker/config.json bersama: deploy lain
+              # di VPS yang sama tidak ikut ter-logout saat job ini selesai atau token job ini kedaluwarsa.
+              cat <<'EOF'
+          DOCKER_CONFIG=$(mktemp -d); export DOCKER_CONFIG
+          trap 'rm -rf "$DOCKER_CONFIG"' EXIT
+          if [ -d "$HOME/.docker/cli-plugins" ]; then ln -s "$HOME/.docker/cli-plugins" "$DOCKER_CONFIG/cli-plugins"; fi
+          EOF
               printf 'printf %%s %q | docker login ghcr.io -u %q --password-stdin >/dev/null\n' "$GHCR_TOKEN" "$GITHUB_ACTOR"
-              echo "trap 'docker logout ghcr.io >/dev/null 2>&1 || true' EXIT"
             fi
             printf '%s\n' "$SCRIPT"
           } > "$script_file"
