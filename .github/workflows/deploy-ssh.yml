@@ -1,4 +1,4 @@
-# Reusable: deploy ke VPS lewat SSH di runner ringan (spark; bisa diganti lewat input runs-on).
+# Reusable: deploy ke VPS lewat SSH di runner ringan (altair; bisa diganti lewat input runs-on).
 #
 #   deploy-staging:
 #     needs: build
@@ -113,7 +113,7 @@ on:
         default: VPS_SSH_KEY
       runs-on:
         description: >-
-          Label runner (JSON). Bawaan runner ringan non-ARC (spark): job deploy hanya SSH, tidak perlu
+          Label runner (JSON). Bawaan runner ringan non-ARC (altair): job deploy hanya SSH, tidak perlu
           menempati slot arc-docker yang dipakai build.
         type: string
         default: '["self-hosted", "light"]'
@@ -155,7 +155,7 @@ jobs:
           host=$(printf '%s' "$SSH_HOST" | tr -d ' \r\n'); port=$(printf '%s' "${SSH_PORT:-22}" | tr -d ' \r\n')
           user=$(printf '%s' "$SSH_USER" | tr -d ' \r\n')
           [ -n "$host" ] && [ -n "$user" ] || { echo "::error::secret $NAME_HOST / $NAME_USER kosong (environment $ENVIRONMENT)"; exit 1; }
-          # Kunci & known_hosts di RUNNER_TEMP, bukan ~/.ssh: runner bisa permanen (spark), dihapus di akhir job.
+          # Kunci & known_hosts di RUNNER_TEMP, bukan ~/.ssh: runner bisa permanen (altair), dihapus di akhir job.
           d="$RUNNER_TEMP/ssh"; install -m 700 -d "$d"
           # Tanpa `printf | grep -q`: dengan pipefail, grep -q yang berhenti lebih awal membuat printf kena
           # SIGPIPE sehingga kunci PEM dianggap base64.
