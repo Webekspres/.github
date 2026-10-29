@@ -234,8 +234,13 @@ jobs:
             fi
             printf '%s\n' "$SCRIPT"
           } > "$script_file"
+          # Save the script to a temp file on the VPS and run it with stdin from /dev/null. With
+          # `bash -s`, bash read the script from stdin, so any command that also reads stdin
+          # (`docker compose exec -T`, `docker compose run`, ...) swallowed the rest of the script
+          # and the deploy "succeeded" without running it.
           ssh $SSH_OPTS -o ServerAliveInterval=30 \
-            -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" 'bash -s' < "$script_file"
+            -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" \
+            'f=$(mktemp) && trap "rm -f \"$f\"" EXIT && cat > "$f" && bash "$f" < /dev/null' < "$script_file"
 
       - name: Cek kesehatan
         if: inputs.health-url != ''
