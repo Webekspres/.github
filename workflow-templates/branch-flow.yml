@@ -1,11 +1,11 @@
-# Alur branch (repo PRIVAT) — runner ringan (spark, label light), tanpa kontainer. Repo publik: pakai template "branch-flow-publik".
+# Alur branch (repo PRIVAT) — runner ringan (altair, label light), tanpa kontainer. Repo publik: pakai template "branch-flow-publik".
 name: Alur branch
 
 # Menjaga alur merge: fitur/* -> dev -> staging -> main
 # - PR divalidasi saat dibuka / disinkronkan / dibuka ulang.
 # - Branch fitur dihapus otomatis setelah PR di-merge; dev/staging/main tidak dihapus.
 #   (Setelan repo "Automatically delete head branches" dimatikan agar dev/staging aman.)
-# Hanya shell + curl (cek nama branch, hapus branch via API), jadi tidak memakai slot arc-ci di kris-lan.
+# Hanya shell + curl (cek nama branch, hapus branch via API), jadi tidak memakai slot arc-ci di sirius/vega.
 on:
   pull_request:
     types: [opened, edited, reopened, synchronize, closed]
