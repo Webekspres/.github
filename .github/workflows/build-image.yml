@@ -74,7 +74,15 @@ on:
         default: ''
     secrets:
       build-args:
-        description: Build-arg berisi rahasia, satu per baris (KEY=nilai). Tidak tampil di log.
+        description: >-
+          Build-arg berisi rahasia, satu per baris (KEY=nilai). Tidak tampil di log, tetapi tetap
+          build-arg (ditandai Docker SecretsUsedInArgOrEnv); untuk rahasia pakai build-secrets.
+        required: false
+      build-secrets:
+        description: >-
+          Rahasia BuildKit, satu per baris (id=nilai). Dibaca di Dockerfile dengan
+          RUN --mount=type=secret,id=<id>,env=<NAMA> ...; tidak menjadi build-arg dan tidak masuk
+          layer image.
         required: false
     outputs:
       image:
@@ -155,6 +163,10 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: docker/build-push-action@v7
+        env:
+          # Jangan unggah build record (*.dockerbuild) sebagai artifact: tidak dipakai dan memenuhi
+          # kuota penyimpanan Actions org.
+          DOCKER_BUILD_RECORD_UPLOAD: "false"
         with:
           context: ${{ inputs.context }}
           file: ${{ inputs.file }}
@@ -164,6 +176,8 @@ jobs:
             ${{ inputs.build-args }}
             ${{ secrets.build-args }}
             ${{ env.SECRET_BUILD_ARGS }}
+          secrets: |
+            ${{ secrets.build-secrets }}
           tags: |
             ${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.env_tag }}
             ${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.tag }}
