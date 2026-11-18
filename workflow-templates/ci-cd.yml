@@ -52,7 +52,8 @@ jobs:
     uses: Webekspres/.github/.github/workflows/build-image.yml@v1
     with:
       environment: ${{ github.ref_name == 'main' && 'production' || 'staging' }}
-      # SESUAIKAN (opsional): file, target, build-args. Build-arg rahasia lewat `secrets: build-args`.
+      # SESUAIKAN (opsional): file, target, build-args. Rahasia saat build lewat `secrets: build-secrets`
+      # (id=nilai), dibaca di Dockerfile dengan `RUN --mount=type=secret,id=<id>`; bukan build-arg.
       # build-args: |
       #   NEXT_PUBLIC_APP_URL=${{ github.ref_name == 'main' && 'https://app.example.com' || 'https://staging.example.com' }}
 
