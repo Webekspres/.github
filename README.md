@@ -75,6 +75,17 @@ Job test khas proyek dan ditulis di repo. Build dan deploy memanggil reusable wo
 Input lengkap ada di komentar [`build-image.yml`](.github/workflows/build-image.yml) dan
 [`deploy-ssh.yml`](.github/workflows/deploy-ssh.yml).
 
+Rahasia yang dibutuhkan saat build (mis. token upload source map) dikirim lewat `secrets: build-secrets`
+(satu `id=nilai` per baris) dan dibaca di Dockerfile sebagai BuildKit secret, bukan build-arg:
+
+```dockerfile
+RUN --mount=type=secret,id=SENTRY_AUTH_TOKEN \
+    SENTRY_AUTH_TOKEN="$(cat /run/secrets/SENTRY_AUTH_TOKEN 2>/dev/null)" npm run build
+```
+
+Nilainya tidak masuk layer image maupun metadata build. `secrets: build-args` masih diterima, tetapi
+ditandai Docker (`SecretsUsedInArgOrEnv`) karena tetap berupa build-arg.
+
 **Versi.** Repo memanggil `@v1`. Perbaikan yang tidak mengubah input memindahkan tag `v1` sehingga semua repo
 langsung ikut; perubahan yang tidak kompatibel dirilis sebagai `v2` dan tiap repo pindah lewat PR.
 Versi runtime proyek (PHP, Node, Python, Flutter, database) tetap ditentukan di job test repo masing-masing
